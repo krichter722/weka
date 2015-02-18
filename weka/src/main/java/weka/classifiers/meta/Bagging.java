@@ -553,7 +553,7 @@ public class Bagging extends RandomizableIteratedSingleClassifierEnhancer
           // double pred = m_Classifiers[j].classifyInstance(data.instance(i));
           if (numeric) {
             // votes[0] += pred;
-            votes[0] = m_Classifiers[j].classifyInstance(data.instance(i));
+            votes[0] += m_Classifiers[j].classifyInstance(data.instance(i));
           } else {
             // votes[(int) pred]++;
             double[] newProbs = m_Classifiers[j].distributionForInstance(data
