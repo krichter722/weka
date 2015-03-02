@@ -117,7 +117,7 @@ public class RegOptimizer
   protected SMOset m_supportVectors;
   
   /** number of kernel evaluations, used for printing statistics only **/
-  protected int m_nEvals = 0;
+  protected long m_nEvals = 0;
 
   /** number of kernel cache hits, used for printing statistics only **/
   protected int m_nCacheHits = -1;
@@ -259,7 +259,7 @@ public class RegOptimizer
    * 
    * @return		the number of kernel evaluations
    */
-  public int getKernelEvaluations() {
+  public long getKernelEvaluations() {
     return m_nEvals;
   }
 
