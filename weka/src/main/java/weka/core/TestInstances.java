@@ -1530,11 +1530,12 @@ public class TestInstances implements Cloneable, Serializable, OptionHandler,
 
     switch (m_ClassType) {
     case Attribute.NUMERIC:
-      result = m_Random.nextFloat() * 0.25 + m_Random.nextInt(Math.max(2, m_NumNominal));
+      result = m_Random.nextFloat() * 0.25 + Math.abs(m_Random.nextInt())
+        % Math.max(2, m_NumNominal);
       break;
 
     case Attribute.NOMINAL:
-      result = m_Random.nextInt(data.numClasses());
+      result = Math.abs(m_Random.nextInt()) % data.numClasses();
       break;
 
     case Attribute.STRING:
@@ -1602,7 +1603,8 @@ public class TestInstances implements Cloneable, Serializable, OptionHandler,
 
     case Attribute.NOMINAL:
       if (m_Random.nextFloat() < 0.2) {
-        result = m_Random.nextInt(data.attribute(index).numValues());
+        result = Math.abs(m_Random.nextInt())
+          % data.attribute(index).numValues();
       } else {
         result = ((int) classVal) % data.attribute(index).numValues();
       }
@@ -1749,9 +1751,6 @@ public class TestInstances implements Cloneable, Serializable, OptionHandler,
         } else {
           classVal = m_Random.nextFloat();
         }
-
-        if ((clsIndex != NO_CLASS) && (m_Data.classAttribute().isString()))
-          classVal++; // Hack to make regression tests pass after eliminating dummy value for string attributes
 
         // other attributes
         for (int n = 0; n < getNumAttributes(); n++) {

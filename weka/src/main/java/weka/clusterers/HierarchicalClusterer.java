@@ -22,8 +22,6 @@ package weka.clusterers;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -32,6 +30,7 @@ import java.util.Vector;
 
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
+import weka.core.CapabilitiesHandler;
 import weka.core.DistanceFunction;
 import weka.core.Drawable;
 import weka.core.EuclideanDistance;
@@ -91,8 +90,11 @@ import weka.core.Utils;
  * @version $Revision$
  */
 public class HierarchicalClusterer extends AbstractClusterer implements
-  OptionHandler, Drawable {
+  OptionHandler, CapabilitiesHandler, Drawable {
   private static final long serialVersionUID = 1L;
+
+  /** Whether the classifier is run in debug mode. */
+  protected boolean m_Debug = false;
 
   /**
    * Whether the distance represent node height (if false) or branch length (if
@@ -214,9 +216,7 @@ public class HierarchicalClusterer extends AbstractClusterer implements
     double m_fHeight = 0;
 
     public String toString(int attIndex) {
-      NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en","US"));
-      DecimalFormat myFormatter = (DecimalFormat)nf;
-      myFormatter.applyPattern("#.#####");
+      DecimalFormat myFormatter = new DecimalFormat("#.#####");
 
       if (m_left == null) {
         if (m_right == null) {
@@ -248,9 +248,7 @@ public class HierarchicalClusterer extends AbstractClusterer implements
     }
 
     public String toString2(int attIndex) {
-      NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en","US"));
-      DecimalFormat myFormatter = (DecimalFormat)nf;
-      myFormatter.applyPattern("#.#####");
+      DecimalFormat myFormatter = new DecimalFormat("#.#####");
 
       if (m_left == null) {
         if (m_right == null) {

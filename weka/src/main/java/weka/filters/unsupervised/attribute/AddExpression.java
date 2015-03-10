@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import weka.core.Attribute;
+import weka.core.AttributeExpression;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.DenseInstance;
@@ -35,14 +36,6 @@ import weka.core.OptionHandler;
 import weka.core.RevisionUtils;
 import weka.core.SparseInstance;
 import weka.core.Utils;
-import weka.core.expressionlanguage.common.IfElseMacro;
-import weka.core.expressionlanguage.common.JavaMacro;
-import weka.core.expressionlanguage.common.MacroDeclarationsCompositor;
-import weka.core.expressionlanguage.common.MathFunctions;
-import weka.core.expressionlanguage.common.Primitives.DoubleExpression;
-import weka.core.expressionlanguage.core.Node;
-import weka.core.expressionlanguage.parser.Parser;
-import weka.core.expressionlanguage.weka.InstancesHelper;
 import weka.filters.Filter;
 import weka.filters.StreamableFilter;
 import weka.filters.UnsupervisedFilter;
@@ -66,7 +59,7 @@ import weka.filters.UnsupervisedFilter;
  *  Specify the expression to apply. Eg a1^2*a5/log(a7*4.0).
  *  Supported opperators: ,+, -, *, /, ^, log, abs, cos, 
  *  exp, sqrt, floor, ceil, rint, tan, sin, (, )
- *  (default: 0.0)
+ *  (default: a1^2)
  * </pre>
  * 
  * <pre>
@@ -91,7 +84,7 @@ public class AddExpression extends Filter implements UnsupervisedFilter,
   static final long serialVersionUID = 402130384261736245L;
 
   /** The infix expression */
-  private String m_infixExpression = "0.0";
+  private String m_infixExpression = "a1^2";
 
   /**
    * Name of the new attribute. "expression" length string will use the provided
@@ -105,9 +98,7 @@ public class AddExpression extends Filter implements UnsupervisedFilter,
    */
   private boolean m_Debug = false;
 
-  private DoubleExpression m_Expression = null;
-
-  private InstancesHelper m_InstancesHelper;
+  private AttributeExpression m_attributeExpression = null;
 
   /**
    * Returns a string describing this filter
@@ -348,31 +339,16 @@ public class AddExpression extends Filter implements UnsupervisedFilter,
   @Override
   public boolean setInputFormat(Instances instanceInfo) throws Exception {
 
-    m_InstancesHelper = new InstancesHelper(instanceInfo);
-    Node node = Parser.parse(
-        // expressions string
-        m_infixExpression,
-        // variables
-        m_InstancesHelper,
-        // macros
-        new MacroDeclarationsCompositor(
-            m_InstancesHelper,
-            new MathFunctions(),
-            new IfElseMacro(),
-            new JavaMacro()
-            )
-        );
-    
-    if (!(node instanceof DoubleExpression))
-      throw new Exception("Expression must be of double type!");
-    
-    m_Expression = (DoubleExpression) node;
+    m_attributeExpression = new AttributeExpression();
+    m_attributeExpression.convertInfixToPostfix(new String(m_infixExpression));
 
     super.setInputFormat(instanceInfo);
 
     Instances outputFormat = new Instances(instanceInfo, 0);
     Attribute newAttribute;
-    if (m_attributeName.compareTo("expression") != 0) {
+    if (m_Debug) {
+      newAttribute = new Attribute(m_attributeExpression.getPostFixExpression());
+    } else if (m_attributeName.compareTo("expression") != 0) {
       newAttribute = new Attribute(m_attributeName);
     } else {
       newAttribute = new Attribute(m_infixExpression);
@@ -404,12 +380,15 @@ public class AddExpression extends Filter implements UnsupervisedFilter,
     }
 
     double[] vals = new double[instance.numAttributes() + 1];
-    System.arraycopy(instance.toDoubleArray(), 0, vals, 0, instance.numAttributes());
+    for (int i = 0; i < instance.numAttributes(); i++) {
+      if (instance.isMissing(i)) {
+        vals[i] = Utils.missingValue();
+      } else {
+        vals[i] = instance.value(i);
+      }
+    }
 
-    m_InstancesHelper.setInstance(instance);
-    vals[vals.length - 1] = m_Expression.evaluate();
-    if (m_InstancesHelper.missingAccessed())
-      vals[vals.length - 1] = Utils.missingValue();
+    m_attributeExpression.evaluateExpression(vals);
 
     Instance inst = null;
     if (instance instanceof SparseInstance) {

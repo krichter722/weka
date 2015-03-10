@@ -44,8 +44,6 @@ import weka.core.TechnicalInformation.Type;
 import weka.core.TechnicalInformationHandler;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
-import weka.core.Capabilities;
-import weka.core.Capabilities.Capability;
 
 /**
  * <!-- globalinfo-start --> Class for generating a PART decision list. Uses
@@ -221,20 +219,14 @@ public class PART extends AbstractClassifier implements OptionHandler,
   public Capabilities getCapabilities() {
     Capabilities result;
 
-    result = new Capabilities(this);
-    result.disableAll();
-    // attributes
-    result.enable(Capability.NOMINAL_ATTRIBUTES);
-    result.enable(Capability.NUMERIC_ATTRIBUTES);
-    result.enable(Capability.DATE_ATTRIBUTES);
-    result.enable(Capability.MISSING_VALUES);
-    
-    // class
-    result.enable(Capability.NOMINAL_CLASS);
-    result.enable(Capability.MISSING_CLASS_VALUES);
-    
-    // instances
-    result.setMinimumNumberInstances(0);
+    if (m_unpruned) {
+      result = new MakeDecList(null, m_minNumObj).getCapabilities();
+    } else if (m_reducedErrorPruning) {
+      result = new MakeDecList(null, m_numFolds, m_minNumObj, m_Seed)
+        .getCapabilities();
+    } else {
+      result = new MakeDecList(null, m_CF, m_minNumObj).getCapabilities();
+    }
 
     return result;
   }

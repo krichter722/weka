@@ -74,12 +74,10 @@ import weka.core.WeightedInstancesHandler;
  * Valid options are: <p/>
  * 
  * <pre> -I &lt;number of trees&gt;
- *  Number of trees to build.
- *  (default 100)</pre>
+ *  Number of trees to build.</pre>
  * 
  * <pre> -K &lt;number of features&gt;
- *  Number of features to consider (&lt;1=int(log_2(#predictors)+1)).
- *  (default 0)</pre>
+ *  Number of features to consider (&lt;1=int(logM+1)).</pre>
  * 
  * <pre> -S
  *  Seed for random number generator.
@@ -120,11 +118,11 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
   static final long serialVersionUID = 1116839470751428698L;
 
   /** Number of trees in forest. */
-  protected int m_numTrees = 100;
+  protected int m_numTrees = 10;
 
   /**
    * Number of features to consider in random feature selection. If less than 1
-   * will use int(log_2(M)+1) )
+   * will use int(logM+1) )
    */
   protected int m_numFeatures = 0;
 
@@ -446,11 +444,11 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
 
     Vector<Option> newVector = new Vector<Option>();
 
-    newVector.addElement(new Option("\tNumber of trees to build.\n\t(default 100)", "I", 1,
+    newVector.addElement(new Option("\tNumber of trees to build.", "I", 1,
       "-I <number of trees>"));
 
     newVector.addElement(new Option(
-      "\tNumber of features to consider (<1=int(log_2(#predictors)+1)).\n\t(default 0)", "K", 1,
+      "\tNumber of features to consider (<1=int(logM+1)).", "K", 1,
       "-K <number of features>"));
 
     newVector.addElement(new Option("\tSeed for random number generator.\n"
@@ -522,12 +520,10 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
    * Valid options are: <p/>
    * 
    * <pre> -I &lt;number of trees&gt;
-   *  Number of trees to build.
-   *  (default 100)</pre>
+   *  Number of trees to build.</pre>
    * 
    * <pre> -K &lt;number of features&gt;
-   *  Number of features to consider (&lt;1=int(log_2(#predictors)+1)).
-   *  (default 0)</pre>
+   *  Number of features to consider (&lt;1=int(logM+1)).</pre>
    * 
    * <pre> -S
    *  Seed for random number generator.
@@ -568,7 +564,7 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
     if (tmpStr.length() != 0) {
       m_numTrees = Integer.parseInt(tmpStr);
     } else {
-      m_numTrees = 100;
+      m_numTrees = 10;
     }
 
     tmpStr = Utils.getOption('K', options);
@@ -645,7 +641,7 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
     // set up the random tree options
     m_KValue = m_numFeatures;
     if (m_KValue < 1) {
-      m_KValue = (int) Utils.log2(data.numAttributes() - 1) + 1;
+      m_KValue = (int) Utils.log2(data.numAttributes()) + 1;
     }
     rTree.setKValue(m_KValue);
     rTree.setMaxDepth(getMaxDepth());
@@ -655,7 +651,7 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
     m_bagger.setClassifier(rTree);
     m_bagger.setSeed(m_randomSeed);
     m_bagger.setNumIterations(m_numTrees);
-    m_bagger.setCalcOutOfBag(!getDontCalculateOutOfBagError());
+    m_bagger.setCalcOutOfBag(true);
     m_bagger.setNumExecutionSlots(m_numExecutionSlots);
     m_bagger.buildClassifier(data);
   }
@@ -759,7 +755,6 @@ public class RandomForest extends AbstractClassifier implements OptionHandler,
   @Override
   public void finalizeAggregation() throws Exception {
     m_bagger.finalizeAggregation();
-    m_numTrees = m_bagger.getNumIterations();
   }
 }
 

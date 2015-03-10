@@ -50,8 +50,6 @@ import weka.core.TechnicalInformation.Type;
 import weka.core.TechnicalInformationHandler;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
-import weka.core.Capabilities;
-import weka.core.Capabilities.Capability;
 
 /**
  * <!-- globalinfo-start --> Class for generating a pruned or unpruned C4.5
@@ -164,46 +162,46 @@ public class J48 extends AbstractClassifier implements OptionHandler, Drawable,
   protected ClassifierTree m_root;
 
   /** Unpruned tree? */
-  protected boolean m_unpruned = false;
+  private boolean m_unpruned = false;
 
   /** Collapse tree? */
-  protected boolean m_collapseTree = true;
+  private boolean m_collapseTree = true;
 
   /** Confidence level */
-  protected float m_CF = 0.25f;
+  private float m_CF = 0.25f;
 
   /** Minimum number of instances */
-  protected int m_minNumObj = 2;
+  private int m_minNumObj = 2;
 
   /** Use MDL correction? */
-  protected boolean m_useMDLcorrection = true;
+  private boolean m_useMDLcorrection = true;
 
   /**
    * Determines whether probabilities are smoothed using Laplace correction when
    * predictions are generated
    */
-  protected boolean m_useLaplace = false;
+  private boolean m_useLaplace = false;
 
   /** Use reduced error pruning? */
-  protected boolean m_reducedErrorPruning = false;
+  private boolean m_reducedErrorPruning = false;
 
   /** Number of folds for reduced error pruning. */
-  protected int m_numFolds = 3;
+  private int m_numFolds = 3;
 
   /** Binary splits on nominal attributes? */
-  protected boolean m_binarySplits = false;
+  private boolean m_binarySplits = false;
 
   /** Subtree raising to be performed? */
-  protected boolean m_subtreeRaising = true;
+  private boolean m_subtreeRaising = true;
 
   /** Cleanup after the tree has been built. */
-  protected boolean m_noCleanup = false;
+  private boolean m_noCleanup = false;
 
   /** Random number seed for reduced-error pruning. */
-  protected int m_Seed = 1;
+  private int m_Seed = 1;
 
   /** Do not relocate split point to actual data value */
-  protected boolean m_doNotMakeSplitPointActualValue;
+  private boolean m_doNotMakeSplitPointActualValue;
 
   /**
    * Returns a string describing classifier
@@ -247,20 +245,20 @@ public class J48 extends AbstractClassifier implements OptionHandler, Drawable,
   public Capabilities getCapabilities() {
     Capabilities result;
 
-    result = new Capabilities(this);
-    result.disableAll();
-    // attributes
-    result.enable(Capability.NOMINAL_ATTRIBUTES);
-    result.enable(Capability.NUMERIC_ATTRIBUTES);
-    result.enable(Capability.DATE_ATTRIBUTES);
-    result.enable(Capability.MISSING_VALUES);
-    
-    // class
-    result.enable(Capability.NOMINAL_CLASS);
-    result.enable(Capability.MISSING_CLASS_VALUES);
-    
-    // instances
-    result.setMinimumNumberInstances(0);
+    try {
+      if (!m_reducedErrorPruning) {
+        result = new C45PruneableClassifierTree(null, !m_unpruned, m_CF,
+          m_subtreeRaising, !m_noCleanup, m_collapseTree).getCapabilities();
+      } else {
+        result = new PruneableClassifierTree(null, !m_unpruned, m_numFolds,
+          !m_noCleanup, m_Seed).getCapabilities();
+      }
+    } catch (Exception e) {
+      result = new Capabilities(this);
+      result.disableAll();
+    }
+
+    result.setOwner(this);
 
     return result;
   }
@@ -444,7 +442,7 @@ public class J48 extends AbstractClassifier implements OptionHandler, Drawable,
       + "\tpruning. One fold is used as pruning set.\n" + "\t(default 3)", "N",
       1, "-N <number of folds>"));
     newVector.addElement(new Option("\tUse binary splits only.", "B", 0, "-B"));
-    newVector.addElement(new Option("\tDo not perform subtree raising.", "S", 0,
+    newVector.addElement(new Option("\tDon't perform subtree raising.", "S", 0,
       "-S"));
     newVector.addElement(new Option(
       "\tDo not clean up after the tree has been built.", "L", 0, "-L"));

@@ -63,11 +63,7 @@ public class HierarchyPropertyParser implements Serializable {
    * simply for convenient access, Although a severe violation of OO Design
    * principle.
    */
-  private class TreeNode implements Serializable {
-    
-    /** For serialization */
-    private static final long serialVersionUID = 6495148851062003641L;
-
+  private class TreeNode {
     /** The parent of this node */
     public TreeNode parent = null;
 

@@ -21,6 +21,7 @@
 
 package weka.classifiers.functions;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +33,6 @@ import java.util.Random;
 import java.util.Vector;
 
 import weka.classifiers.RandomizableClassifier;
-import weka.classifiers.UpdateableBatchProcessor;
 import weka.classifiers.UpdateableClassifier;
 import weka.core.Aggregateable;
 import weka.core.Attribute;
@@ -45,102 +45,123 @@ import weka.core.Option;
 import weka.core.OptionHandler;
 import weka.core.RevisionUtils;
 import weka.core.SelectedTag;
+import weka.core.Stopwords;
 import weka.core.Tag;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
 import weka.core.stemmers.NullStemmer;
 import weka.core.stemmers.Stemmer;
-import weka.core.stopwords.Null;
-import weka.core.stopwords.StopwordsHandler;
 import weka.core.tokenizers.Tokenizer;
 import weka.core.tokenizers.WordTokenizer;
 
 /**
- <!-- globalinfo-start -->
- * Implements stochastic gradient descent for learning a linear binary class SVM or binary class logistic regression on text data. Operates directly (and only) on String attributes. Other types of input attributes are accepted but ignored during training and classification.
+ * <!-- globalinfo-start --> Implements stochastic gradient descent for learning
+ * a linear binary class SVM or binary class logistic regression on text data.
+ * Operates directly (and only) on String attributes. Other types of input
+ * attributes are accepted but ignored during training and classification.
  * <p/>
- <!-- globalinfo-end -->
+ * <!-- globalinfo-end -->
  * 
- <!-- options-start -->
- * Valid options are: <p/>
+ * <!-- options-start --> Valid options are:
+ * <p/>
  * 
- * <pre> -F
+ * <pre>
+ * -F
  *  Set the loss function to minimize. 0 = hinge loss (SVM), 1 = log loss (logistic regression)
- *  (default = 0)</pre>
+ *  (default = 0)
+ * </pre>
  * 
- * <pre> -outputProbs
+ * <pre>
+ * -outputProbs
  *  Output probabilities for SVMs (fits a logsitic
- *  model to the output of the SVM)</pre>
+ *  model to the output of the SVM)
+ * </pre>
  * 
- * <pre> -L
- *  The learning rate (default = 0.01).</pre>
+ * <pre>
+ * -L
+ *  The learning rate (default = 0.01).
+ * </pre>
  * 
- * <pre> -R &lt;double&gt;
- *  The lambda regularization constant (default = 0.0001)</pre>
+ * <pre>
+ * -R &lt;double&gt;
+ *  The lambda regularization constant (default = 0.0001)
+ * </pre>
  * 
- * <pre> -E &lt;integer&gt;
- *  The number of epochs to perform (batch learning only, default = 500)</pre>
+ * <pre>
+ * -E &lt;integer&gt;
+ *  The number of epochs to perform (batch learning only, default = 500)
+ * </pre>
  * 
- * <pre> -W
- *  Use word frequencies instead of binary bag of words.</pre>
+ * <pre>
+ * -W
+ *  Use word frequencies instead of binary bag of words.
+ * </pre>
  * 
- * <pre> -P &lt;# instances&gt;
- *  How often to prune the dictionary of low frequency words (default = 0, i.e. don't prune)</pre>
+ * <pre>
+ * -P &lt;# instances&gt;
+ *  How often to prune the dictionary of low frequency words (default = 0, i.e. don't prune)
+ * </pre>
  * 
- * <pre> -M &lt;double&gt;
+ * <pre>
+ * -M &lt;double&gt;
  *  Minimum word frequency. Words with less than this frequence are ignored.
  *  If periodic pruning is turned on then this is also used to determine which
- *  words to remove from the dictionary (default = 3).</pre>
+ *  words to remove from the dictionary (default = 3).
+ * </pre>
  * 
- * <pre> -min-coeff &lt;double&gt;
- *  Minimum absolute value of coefficients in the model.
- *  If periodic pruning is turned on then this
- *  is also used to prune words from the dictionary
- *  (default = 0.001</pre>
+ * <pre>
+ * -normalize
+ *  Normalize document length (use in conjunction with -norm and -lnorm
+ * </pre>
  * 
- * <pre> -normalize
- *  Normalize document length (use in conjunction with -norm and -lnorm)</pre>
+ * <pre>
+ * -norm &lt;num&gt;
+ *  Specify the norm that each instance must have (default 1.0)
+ * </pre>
  * 
- * <pre> -norm &lt;num&gt;
- *  Specify the norm that each instance must have (default 1.0)</pre>
+ * <pre>
+ * -lnorm &lt;num&gt;
+ *  Specify L-norm to use (default 2.0)
+ * </pre>
  * 
- * <pre> -lnorm &lt;num&gt;
- *  Specify L-norm to use (default 2.0)</pre>
+ * <pre>
+ * -lowercase
+ *  Convert all tokens to lowercase before adding to the dictionary.
+ * </pre>
  * 
- * <pre> -lowercase
- *  Convert all tokens to lowercase before adding to the dictionary.</pre>
+ * <pre>
+ * -stoplist
+ *  Ignore words that are in the stoplist.
+ * </pre>
  * 
- * <pre> -stopwords-handler
- *  The stopwords handler to use (default Null).</pre>
+ * <pre>
+ * -stopwords &lt;file&gt;
+ *  A file containing stopwords to override the default ones.
+ *  Using this option automatically sets the flag ('-stoplist') to use the
+ *  stoplist if the file exists.
+ *  Format: one stopword per line, lines starting with '#'
+ *  are interpreted as comments and ignored.
+ * </pre>
  * 
- * <pre> -tokenizer &lt;spec&gt;
+ * <pre>
+ * -tokenizer &lt;spec&gt;
  *  The tokenizing algorihtm (classname plus parameters) to use.
- *  (default: weka.core.tokenizers.WordTokenizer)</pre>
+ *  (default: weka.core.tokenizers.WordTokenizer)
+ * </pre>
  * 
- * <pre> -stemmer &lt;spec&gt;
- *  The stemmering algorihtm (classname plus parameters) to use.</pre>
+ * <pre>
+ * -stemmer &lt;spec&gt;
+ *  The stemmering algorihtm (classname plus parameters) to use.
+ * </pre>
  * 
- * <pre> -S &lt;num&gt;
- *  Random number seed.
- *  (default 1)</pre>
- * 
- * <pre> -output-debug-info
- *  If set, classifier is run in debug mode and
- *  may output additional info to the console</pre>
- * 
- * <pre> -do-not-check-capabilities
- *  If set, classifier capabilities are not checked before classifier is built
- *  (use with caution).</pre>
- * 
- <!-- options-end -->
+ * <!-- options-end -->
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @author Eibe Frank (eibe{[at]}cs{[dot]}waikato{[dot]}ac{[dot]}nz)
  * 
  */
 public class SGDText extends RandomizableClassifier implements
-  UpdateableClassifier, UpdateableBatchProcessor, 
-  WeightedInstancesHandler, Aggregateable<SGDText> {
+  UpdateableClassifier, WeightedInstancesHandler, Aggregateable<SGDText> {
 
   /** For serialization */
   private static final long serialVersionUID = 7200171484002029584L;
@@ -170,14 +191,9 @@ public class SGDText extends RandomizableClassifier implements
 
   /**
    * Only consider dictionary words (features) that occur at least this many
-   * times.
+   * times
    */
   protected double m_minWordP = 3;
-
-  /**
-   * Prune terms from the model that have a coefficient smaller than this.
-   */
-  protected double m_minAbsCoefficient = 0.001;
 
   /** Use word frequencies rather than bag-of-words if true */
   protected boolean m_wordFrequencies = false;
@@ -194,8 +210,13 @@ public class SGDText extends RandomizableClassifier implements
   /** The dictionary (and term weights) */
   protected LinkedHashMap<String, Count> m_dictionary;
 
-  /** Stopword handler to use. */
-  protected StopwordsHandler m_StopwordsHandler = new Null();
+  /** Default (rainbow) stopwords */
+  protected transient Stopwords m_stopwords;
+
+  /**
+   * a file containing stopwords for using others than the default Rainbow ones.
+   */
+  protected File m_stopwordsFile = new File(System.getProperty("user.dir"));
 
   /** The tokenizer to use */
   protected Tokenizer m_tokenizer = new WordTokenizer();
@@ -205,6 +226,9 @@ public class SGDText extends RandomizableClassifier implements
 
   /** The stemming algorithm. */
   protected Stemmer m_stemmer = new NullStemmer();
+
+  /** Whether or not to use a stop list */
+  protected boolean m_useStopList;
 
   /** The regularization parameter */
   protected double m_lambda = 0.0001;
@@ -387,7 +411,7 @@ public class SGDText extends RandomizableClassifier implements
    * Get whether to use word frequencies rather than binary bag of words
    * representation.
    * 
-   * @return true if word frequencies are to be used.
+   * @param u true if word frequencies are to be used.
    */
   public boolean getUseWordFrequencies() {
     return m_wordFrequencies;
@@ -422,25 +446,59 @@ public class SGDText extends RandomizableClassifier implements
   }
 
   /**
-   * Sets the stopwords handler to use.
+   * Returns the tip text for this property
    * 
-   * @param value the stopwords handler, if null, Null is used
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
    */
-  public void setStopwordsHandler(StopwordsHandler value) {
-    if (value != null) {
-      m_StopwordsHandler = value;
-    } else {
-      m_StopwordsHandler = new Null();
+  public String useStopListTipText() {
+    return "If true, ignores all words that are on the stoplist.";
+  }
+
+  /**
+   * Set whether to ignore all words that are on the stoplist.
+   * 
+   * @param u true to ignore all words on the stoplist.
+   */
+  public void setUseStopList(boolean u) {
+    m_useStopList = u;
+  }
+
+  /**
+   * Get whether to ignore all words that are on the stoplist.
+   * 
+   * @return true to ignore all words on the stoplist.
+   */
+  public boolean getUseStopList() {
+    return m_useStopList;
+  }
+
+  /**
+   * sets the file containing the stopwords, null or a directory unset the
+   * stopwords. If the file exists, it automatically turns on the flag to use
+   * the stoplist.
+   * 
+   * @param value the file containing the stopwords
+   */
+  public void setStopwords(File value) {
+    if (value == null) {
+      value = new File(System.getProperty("user.dir"));
+    }
+
+    m_stopwordsFile = value;
+    if (value.exists() && value.isFile()) {
+      setUseStopList(true);
     }
   }
 
   /**
-   * Gets the stopwords handler.
+   * returns the file used for obtaining the stopwords, if the file represents a
+   * directory then the default ones are used.
    * 
-   * @return the stopwords handler
+   * @return the file containing the stopwords
    */
-  public StopwordsHandler getStopwordsHandler() {
-    return m_StopwordsHandler;
+  public File getStopwords() {
+    return m_stopwordsFile;
   }
 
   /**
@@ -449,8 +507,8 @@ public class SGDText extends RandomizableClassifier implements
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
-  public String stopwordsHandlerTipText() {
-    return "The stopwords handler to use (Null means no stopwords are used).";
+  public String stopwordsTipText() {
+    return "The file containing the stopwords (if this is a directory then the default ones are used).";
   }
 
   /**
@@ -514,47 +572,10 @@ public class SGDText extends RandomizableClassifier implements
    * times are ignored when updating weights. If periodic pruning is turned on,
    * then min frequency is used when removing words from the dictionary.
    * 
-   * @return the minimum word frequency to use
+   * @param return the minimum word frequency to use
    */
   public double getMinWordFrequency() {
     return m_minWordP;
-  }
-
-  /**
-   * Returns the tip text for this property
-   * 
-   * @return tip text for this property suitable for displaying in the
-   *         explorer/experimenter gui
-   */
-  public String minAbsoluteCoefficientValueTipText() {
-    return "The minimum absolute magnitude for model coefficients. Terms "
-      + "with weights smaller than this value are ignored. If periodic "
-      + "pruning is turned on then this is also used to determine if a "
-      + "word should be removed from the dictionary.";
-  }
-
-  /**
-   * Set the minimum absolute magnitude for model coefficients. Terms with
-   * weights smaller than this value are ignored. If periodic pruning is turned
-   * on then this is also used to determine if a word should be removed from the
-   * dictionary
-   * 
-   * @param minCoeff the minimum absolute value of a model coefficient
-   */
-  public void setMinAbsoluteCoefficientValue(double minCoeff) {
-    m_minAbsCoefficient = minCoeff;
-  }
-
-  /**
-   * Get the minimum absolute magnitude for model coefficients. Terms with
-   * weights smaller than this value are ignored. If periodic pruning is turned
-   * on this then is also used to determine if a word should be removed from the
-   * dictionary
-   * 
-   * @return the minimum absolute value of a model coefficient
-   */
-  public double getMinAbsoluteCoefficientValue() {
-    return m_minAbsCoefficient;
   }
 
   /**
@@ -822,12 +843,6 @@ public class SGDText extends RandomizableClassifier implements
       + "is turned on then this is also used to determine which\n\t"
       + "words to remove from the dictionary (default = 3).", "M", 1,
       "-M <double>"));
-
-    newVector.add(new Option("\tMinimum absolute value of coefficients " +
-      "in the model.\n\tIf periodic pruning is turned on then this\n\t"
-      + "is also used to prune words from the dictionary\n\t"
-      + "(default = 0.001", "min-coeff", 1, "-min-coeff <double>"));
-
     newVector.addElement(new Option(
       "\tNormalize document length (use in conjunction with -norm and "
         + "-lnorm)", "normalize", 0, "-normalize"));
@@ -838,9 +853,16 @@ public class SGDText extends RandomizableClassifier implements
       "lnorm", 1, "-lnorm <num>"));
     newVector.addElement(new Option("\tConvert all tokens to lowercase "
       + "before adding to the dictionary.", "lowercase", 0, "-lowercase"));
-    newVector.addElement(new Option(
-      "\tThe stopwords handler to use (default Null).",
-      "-stopwords-handler", 1, "-stopwords-handler"));
+    newVector.addElement(new Option("\tIgnore words that are in the stoplist.",
+      "stoplist", 0, "-stoplist"));
+    newVector
+      .addElement(new Option(
+        "\tA file containing stopwords to override the default ones.\n"
+          + "\tUsing this option automatically sets the flag ('-stoplist') to use the\n"
+          + "\tstoplist if the file exists.\n"
+          + "\tFormat: one stopword per line, lines starting with '#'\n"
+          + "\tare interpreted as comments and ignored.", "stopwords", 1,
+        "-stopwords <file>"));
     newVector.addElement(new Option(
       "\tThe tokenizing algorihtm (classname plus parameters) to use.\n"
         + "\t(default: " + WordTokenizer.class.getName() + ")", "tokenizer", 1,
@@ -858,78 +880,99 @@ public class SGDText extends RandomizableClassifier implements
    * Parses a given list of options.
    * <p/>
    * 
-   <!-- options-start -->
-   * Valid options are: <p/>
+   * <!-- options-start --> Valid options are:
+   * <p/>
    * 
-   * <pre> -F
+   * <pre>
+   * -F
    *  Set the loss function to minimize. 0 = hinge loss (SVM), 1 = log loss (logistic regression)
-   *  (default = 0)</pre>
+   *  (default = 0)
+   * </pre>
    * 
-   * <pre> -outputProbs
+   * <pre>
+   * -outputProbs
    *  Output probabilities for SVMs (fits a logsitic
-   *  model to the output of the SVM)</pre>
+   *  model to the output of the SVM)
+   * </pre>
    * 
-   * <pre> -L
-   *  The learning rate (default = 0.01).</pre>
+   * <pre>
+   * -L
+   *  The learning rate (default = 0.01).
+   * </pre>
    * 
-   * <pre> -R &lt;double&gt;
-   *  The lambda regularization constant (default = 0.0001)</pre>
+   * <pre>
+   * -R &lt;double&gt;
+   *  The lambda regularization constant (default = 0.0001)
+   * </pre>
    * 
-   * <pre> -E &lt;integer&gt;
-   *  The number of epochs to perform (batch learning only, default = 500)</pre>
+   * <pre>
+   * -E &lt;integer&gt;
+   *  The number of epochs to perform (batch learning only, default = 500)
+   * </pre>
    * 
-   * <pre> -W
-   *  Use word frequencies instead of binary bag of words.</pre>
+   * <pre>
+   * -W
+   *  Use word frequencies instead of binary bag of words.
+   * </pre>
    * 
-   * <pre> -P &lt;# instances&gt;
-   *  How often to prune the dictionary of low frequency words (default = 0, i.e. don't prune)</pre>
+   * <pre>
+   * -P &lt;# instances&gt;
+   *  How often to prune the dictionary of low frequency words (default = 0, i.e. don't prune)
+   * </pre>
    * 
-   * <pre> -M &lt;double&gt;
+   * <pre>
+   * -M &lt;double&gt;
    *  Minimum word frequency. Words with less than this frequence are ignored.
    *  If periodic pruning is turned on then this is also used to determine which
-   *  words to remove from the dictionary (default = 3).</pre>
+   *  words to remove from the dictionary (default = 3).
+   * </pre>
    * 
-   * <pre> -min-coeff &lt;double&gt;
-   *  Minimum absolute value of coefficients in the model.
-   *  If periodic pruning is turned on then this
-   *  is also used to prune words from the dictionary
-   *  (default = 0.001</pre>
+   * <pre>
+   * -normalize
+   *  Normalize document length (use in conjunction with -norm and -lnorm
+   * </pre>
    * 
-   * <pre> -normalize
-   *  Normalize document length (use in conjunction with -norm and -lnorm)</pre>
+   * <pre>
+   * -norm &lt;num&gt;
+   *  Specify the norm that each instance must have (default 1.0)
+   * </pre>
    * 
-   * <pre> -norm &lt;num&gt;
-   *  Specify the norm that each instance must have (default 1.0)</pre>
+   * <pre>
+   * -lnorm &lt;num&gt;
+   *  Specify L-norm to use (default 2.0)
+   * </pre>
    * 
-   * <pre> -lnorm &lt;num&gt;
-   *  Specify L-norm to use (default 2.0)</pre>
+   * <pre>
+   * -lowercase
+   *  Convert all tokens to lowercase before adding to the dictionary.
+   * </pre>
    * 
-   * <pre> -lowercase
-   *  Convert all tokens to lowercase before adding to the dictionary.</pre>
+   * <pre>
+   * -stoplist
+   *  Ignore words that are in the stoplist.
+   * </pre>
    * 
-   * <pre> -stopwords-handler
-   *  The stopwords handler to use (default Null).</pre>
+   * <pre>
+   * -stopwords &lt;file&gt;
+   *  A file containing stopwords to override the default ones.
+   *  Using this option automatically sets the flag ('-stoplist') to use the
+   *  stoplist if the file exists.
+   *  Format: one stopword per line, lines starting with '#'
+   *  are interpreted as comments and ignored.
+   * </pre>
    * 
-   * <pre> -tokenizer &lt;spec&gt;
+   * <pre>
+   * -tokenizer &lt;spec&gt;
    *  The tokenizing algorihtm (classname plus parameters) to use.
-   *  (default: weka.core.tokenizers.WordTokenizer)</pre>
+   *  (default: weka.core.tokenizers.WordTokenizer)
+   * </pre>
    * 
-   * <pre> -stemmer &lt;spec&gt;
-   *  The stemmering algorihtm (classname plus parameters) to use.</pre>
+   * <pre>
+   * -stemmer &lt;spec&gt;
+   *  The stemmering algorihtm (classname plus parameters) to use.
+   * </pre>
    * 
-   * <pre> -S &lt;num&gt;
-   *  Random number seed.
-   *  (default 1)</pre>
-   * 
-   * <pre> -output-debug-info
-   *  If set, classifier is run in debug mode and
-   *  may output additional info to the console</pre>
-   * 
-   * <pre> -do-not-check-capabilities
-   *  If set, classifier capabilities are not checked before classifier is built
-   *  (use with caution).</pre>
-   * 
-   <!-- options-end -->
+   * <!-- options-end -->
    * 
    * @param options the list of options as an array of strings
    * @throws Exception if an option is not supported
@@ -972,11 +1015,6 @@ public class SGDText extends RandomizableClassifier implements
       setMinWordFrequency(Double.parseDouble(minFreq));
     }
 
-    String minCoeff = Utils.getOption("min-coeff", options);
-    if (minCoeff.length() > 0) {
-      setMinAbsoluteCoefficientValue(Double.parseDouble(minCoeff));
-    }
-
     setNormalizeDocLength(Utils.getFlag("normalize", options));
 
     String normFreqS = Utils.getOption("norm", options);
@@ -989,35 +1027,13 @@ public class SGDText extends RandomizableClassifier implements
     }
 
     setLowercaseTokens(Utils.getFlag("lowercase", options));
+    setUseStopList(Utils.getFlag("stoplist", options));
 
-    String stemmerString = Utils.getOption("stemmer", options);
-    if (stemmerString.length() == 0) {
-      setStemmer(null);
+    String stopwordsS = Utils.getOption("stopwords", options);
+    if (stopwordsS.length() > 0) {
+      setStopwords(new File(stopwordsS));
     } else {
-      String[] stemmerSpec = Utils.splitOptions(stemmerString);
-      if (stemmerSpec.length == 0) {
-        throw new Exception("Invalid stemmer specification string");
-      }
-      String stemmerName = stemmerSpec[0];
-      stemmerSpec[0] = "";
-      Stemmer stemmer = (Stemmer) Utils.forName(Class.forName("weka.core.stemmers.Stemmer"), stemmerName, stemmerSpec);
-      setStemmer(stemmer);
-    }
-
-    String stopwordsHandlerString = Utils.getOption("stopwords-handler", options);
-    if (stopwordsHandlerString.length() == 0) {
-      setStopwordsHandler(null);
-    } else {
-      String[] stopwordsHandlerSpec = Utils.splitOptions(stopwordsHandlerString);
-      if (stopwordsHandlerSpec.length == 0) {
-        throw new Exception("Invalid StopwordsHandler specification string");
-      }
-      String stopwordsHandlerName = stopwordsHandlerSpec[0];
-      stopwordsHandlerSpec[0] = "";
-      StopwordsHandler stopwordsHandler =
-              (StopwordsHandler) Utils.forName(Class.forName("weka.core.stopwords.StopwordsHandler"),
-                      stopwordsHandlerName, stopwordsHandlerSpec);
-      setStopwordsHandler(stopwordsHandler);
+      setStopwords(null);
     }
 
     String tokenizerString = Utils.getOption("tokenizer", options);
@@ -1030,9 +1046,29 @@ public class SGDText extends RandomizableClassifier implements
       }
       String tokenizerName = tokenizerSpec[0];
       tokenizerSpec[0] = "";
-      Tokenizer tokenizer = (Tokenizer) Utils.forName(Class.forName("weka.core.tokenizers.Tokenizer"), tokenizerName,
-              tokenizerSpec);
+      Tokenizer tokenizer = (Tokenizer) Class.forName(tokenizerName)
+        .newInstance();
+      if (tokenizer instanceof OptionHandler) {
+        ((OptionHandler) tokenizer).setOptions(tokenizerSpec);
+      }
       setTokenizer(tokenizer);
+    }
+
+    String stemmerString = Utils.getOption("stemmer", options);
+    if (stemmerString.length() == 0) {
+      setStemmer(null);
+    } else {
+      String[] stemmerSpec = Utils.splitOptions(stemmerString);
+      if (stemmerSpec.length == 0) {
+        throw new Exception("Invalid stemmer specification string");
+      }
+      String stemmerName = stemmerSpec[0];
+      stemmerSpec[0] = "";
+      Stemmer stemmer = (Stemmer) Class.forName(stemmerName).newInstance();
+      if (stemmer instanceof OptionHandler) {
+        ((OptionHandler) stemmer).setOptions(stemmerSpec);
+      }
+      setStemmer(stemmer);
     }
 
     super.setOptions(options);
@@ -1068,9 +1104,6 @@ public class SGDText extends RandomizableClassifier implements
     options.add("-M");
     options.add("" + getMinWordFrequency());
 
-    options.add("-min-coeff");
-    options.add("" + getMinAbsoluteCoefficientValue());
-
     if (getNormalizeDocLength()) {
       options.add("-normalize");
     }
@@ -1081,17 +1114,12 @@ public class SGDText extends RandomizableClassifier implements
     if (getLowercaseTokens()) {
       options.add("-lowercase");
     }
-
-    if (getStopwordsHandler() != null) {
-      options.add("-stopwords-handler");
-      String spec = getStopwordsHandler().getClass().getName();
-      if (getStopwordsHandler() instanceof OptionHandler) {
-        spec +=
-          " "
-            + Utils.joinOptions(((OptionHandler) getStopwordsHandler())
-              .getOptions());
-      }
-      options.add(spec.trim());
+    if (getUseStopList()) {
+      options.add("-stoplist");
+    }
+    if (!getStopwords().isDirectory()) {
+      options.add("-stopwords");
+      options.add(getStopwords().getAbsolutePath());
     }
 
     options.add("-tokenizer");
@@ -1175,7 +1203,6 @@ public class SGDText extends RandomizableClassifier implements
     if (data.numInstances() > 0) {
       data.randomize(new Random(getSeed()));
       train(data);
-      pruneDictionary(true);
     }
   }
 
@@ -1253,9 +1280,8 @@ public class SGDText extends RandomizableClassifier implements
       } else {
         multiplier = 1.0 - (m_learningRate * m_lambda) / m_numInstances;
       }
-
-      for (Map.Entry<String, Count> c : m_dictionary.entrySet()) {
-        c.getValue().m_weight *= multiplier;
+      for (Count c : m_dictionary.values()) {
+        c.m_weight *= multiplier;
       }
 
       // Only need to do the following if the loss is non-zero
@@ -1290,20 +1316,33 @@ public class SGDText extends RandomizableClassifier implements
       m_inputVector.clear();
     }
 
+    if (m_useStopList && m_stopwords == null) {
+      m_stopwords = new Stopwords();
+      try {
+        if (getStopwords().exists() && !getStopwords().isDirectory()) {
+          m_stopwords.read(getStopwords());
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+
     for (int i = 0; i < instance.numAttributes(); i++) {
       if (instance.attribute(i).isString() && !instance.isMissing(i)) {
         m_tokenizer.tokenize(instance.stringValue(i));
 
         while (m_tokenizer.hasMoreElements()) {
-          String word = m_tokenizer.nextElement();
+          String word = (String) m_tokenizer.nextElement();
           if (m_lowercaseTokens) {
             word = word.toLowerCase();
           }
 
           word = m_stemmer.stem(word);
 
-          if (m_StopwordsHandler.isStopword(word)) {
-            continue;
+          if (m_useStopList) {
+            if (m_stopwords.is(word)) {
+              continue;
+            }
           }
 
           Count docCount = m_inputVector.get(word);
@@ -1327,12 +1366,12 @@ public class SGDText extends RandomizableClassifier implements
     }
 
     if (updateDictionary) {
-      pruneDictionary(false);
+      pruneDictionary();
     }
   }
 
-  protected void pruneDictionary(boolean force) {
-    if ((m_periodicP <= 0 || m_t % m_periodicP > 0) && !force) {
+  protected void pruneDictionary() {
+    if (m_periodicP <= 0 || m_t % m_periodicP > 0) {
       return;
     }
 
@@ -1340,8 +1379,7 @@ public class SGDText extends RandomizableClassifier implements
       .iterator();
     while (entries.hasNext()) {
       Map.Entry<String, Count> entry = entries.next();
-      if (entry.getValue().m_count < m_minWordP
-        || Math.abs(entry.getValue().m_weight) < m_minAbsCoefficient) {
+      if (entry.getValue().m_count < m_minWordP) {
         entries.remove();
       }
     }
@@ -1416,8 +1454,7 @@ public class SGDText extends RandomizableClassifier implements
 
       Count weight = m_dictionary.get(word);
 
-      if (weight != null && weight.m_count >= m_minWordP
-        && Math.abs(weight.m_weight) >= m_minAbsCoefficient) {
+      if (weight != null && weight.m_count >= m_minWordP) {
         result += freq * weight.m_weight;
       }
     }
@@ -1445,8 +1482,7 @@ public class SGDText extends RandomizableClassifier implements
       .iterator();
     while (entries.hasNext()) {
       Map.Entry<String, Count> entry = entries.next();
-      if (entry.getValue().m_count >= m_minWordP
-        && Math.abs(entry.getValue().m_weight) >= m_minAbsCoefficient) {
+      if (entry.getValue().m_count >= m_minWordP) {
         dictSize++;
       }
     }
@@ -1460,8 +1496,7 @@ public class SGDText extends RandomizableClassifier implements
     while (entries.hasNext()) {
       Map.Entry<String, Count> entry = entries.next();
 
-      if (entry.getValue().m_count >= m_minWordP
-        && Math.abs(entry.getValue().m_weight) >= m_minAbsCoefficient) {
+      if (entry.getValue().m_count >= m_minWordP) {
         if (printed > 0) {
           buff.append(" + ");
         } else {
@@ -1505,8 +1540,7 @@ public class SGDText extends RandomizableClassifier implements
         .iterator();
       while (entries.hasNext()) {
         Map.Entry<String, Count> entry = entries.next();
-        if (entry.getValue().m_count >= m_minWordP
-          && Math.abs(entry.getValue().m_weight) >= m_minAbsCoefficient) {
+        if (entry.getValue().m_count >= m_minWordP) {
           size++;
         }
       }
@@ -1590,8 +1624,6 @@ public class SGDText extends RandomizableClassifier implements
       throw new Exception("Unable to finalize aggregation - "
         + "haven't seen any models to aggregate");
     }
-    
-    pruneDictionary(true);
 
     Iterator<Map.Entry<String, SGDText.Count>> entries = m_dictionary
       .entrySet().iterator();
@@ -1607,11 +1639,6 @@ public class SGDText extends RandomizableClassifier implements
     // aggregation complete
     m_numModels = 0;
   }
-  
-  @Override
-  public void batchFinished() throws Exception {
-    pruneDictionary(true);
-  }
 
   /**
    * Main method for testing this class.
@@ -1620,4 +1647,3 @@ public class SGDText extends RandomizableClassifier implements
     runClassifier(new SGDText(), args);
   }
 }
-

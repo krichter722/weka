@@ -27,7 +27,6 @@ import java.util.Vector;
 
 import weka.core.Capabilities;
 import weka.core.CapabilitiesHandler;
-import weka.core.CapabilitiesIgnorer;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Option;
@@ -44,9 +43,7 @@ import weka.core.Utils;
  * @version $Revision$
  */
 public abstract class AbstractClusterer implements Clusterer, Cloneable,
-                                                   Serializable, CapabilitiesHandler, 
-                                                   RevisionHandler, OptionHandler,
-                                                   CapabilitiesIgnorer {
+  Serializable, CapabilitiesHandler, RevisionHandler, OptionHandler {
 
   /** for serialization */
   private static final long serialVersionUID = -6099962589663877632L;
@@ -128,7 +125,6 @@ public abstract class AbstractClusterer implements Clusterer, Cloneable,
    * 
    * @return an enumeration of all the available options.
    */
-  @Override
   public Enumeration<Option> listOptions() {
 
     Vector<Option> newVector = new Vector<Option>(2);
@@ -162,7 +158,6 @@ public abstract class AbstractClusterer implements Clusterer, Cloneable,
    * @param options the list of options as an array of strings
    * @exception Exception if an option is not supported
    */
-  @Override
   public void setOptions(String[] options) throws Exception {
 
     setDebug(Utils.getFlag("output-debug-info", options));
@@ -237,7 +232,6 @@ public abstract class AbstractClusterer implements Clusterer, Cloneable,
    * 
    * @return an array of strings suitable for passing to setOptions
    */
-  @Override
   public String[] getOptions() {
 
     Vector<String> options = new Vector<String>();
@@ -317,6 +311,7 @@ public abstract class AbstractClusterer implements Clusterer, Cloneable,
 
     result = new Capabilities(this);
     result.enableAll();
+    // result.enable(Capability.NO_CLASS);
 
     return result;
   }

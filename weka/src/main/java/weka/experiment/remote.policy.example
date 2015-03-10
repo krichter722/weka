@@ -30,7 +30,7 @@
  * Note:
  * replace <db.jar> with actual jar filename, e.g., mysql.jar
  *
- * Version: $Revision$
+ * Version: $Revision: 1.3 $
  */
 
 grant {
@@ -56,7 +56,7 @@ grant {
 
   // connect to or accept connections from unprivaleged ports and the http port
   permission java.net.SocketPermission 
-    "*:1024-65535", "connect,accept,listen,resolve";
+    "*:1024-65535", "connect,accept";
   permission java.net.SocketPermission
     "*:80", "connect";
 
@@ -71,9 +71,6 @@ grant {
   permission java.util.PropertyPermission 
     "*", "read,write";
 
-  // allow thread-based schemes to execute
-  permission java.lang.RuntimePermission
-    "modifyThread";
 };
 
 

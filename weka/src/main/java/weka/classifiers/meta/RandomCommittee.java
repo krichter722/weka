@@ -142,8 +142,9 @@ public class RandomCommittee
     // can classifier handle the data?
     getCapabilities().testWithFail(data);
 
-    // get fresh instances
+    // remove instances with missing class
     m_data = new Instances(data);
+    m_data.deleteWithMissingClass();
     super.buildClassifier(m_data);
     
     if (!(m_Classifier instanceof Randomizable)) {

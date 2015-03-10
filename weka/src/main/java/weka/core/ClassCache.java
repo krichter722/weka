@@ -241,10 +241,6 @@ public class ClassCache implements RevisionHandler {
    * @param manifest the manifest to analyze
    */
   protected void initFromManifest(Manifest manifest) {
-    if (manifest == null) {
-      return;
-    }
-
     Attributes atts;
     String cp;
     String[] parts;
@@ -360,7 +356,7 @@ public class ClassCache implements RevisionHandler {
    * Initializes the cache.
    */
   protected void initialize() {
-    String part = "";
+    String part;
     URLClassLoader sysLoader;
     URL[] urls;
 
@@ -369,10 +365,11 @@ public class ClassCache implements RevisionHandler {
     sysLoader = (URLClassLoader) getClass().getClassLoader();
     urls = sysLoader.getURLs();
     for (URL url : urls) {
-      part = url.toString();
       if (VERBOSE) {
         System.out.println("Classpath-part: " + part);
       }
+
+      part = url.toString();
       initFromClasspathPart(part);
     }
   }

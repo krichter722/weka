@@ -408,12 +408,7 @@ public class NumericToNominal extends SimpleBatchFilter {
           value = Utils.doubleToString(inst.value(n), MAX_DECIMALS);
         }
 
-        int index = result.attribute(n).indexOfValue(value);
-        if (index == -1) {
-          values[n] = Utils.missingValue();;
-        } else {
-          values[n] = index;
-        }
+        values[n] = result.attribute(n).indexOfValue(value);
       }
 
       // generate new instance

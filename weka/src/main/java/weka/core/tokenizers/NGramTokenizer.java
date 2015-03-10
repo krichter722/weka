@@ -254,10 +254,8 @@ public class NGramTokenizer extends CharacterDelimitedTokenizer {
    */
   @Override
   public boolean hasMoreElements() {
-    // return (m_CurrentPosition < m_MaxPosition
-    // && m_N - 1 + m_CurrentPosition < m_MaxPosition && m_N >= m_NMin);
-    //
-    return (m_N >= m_NMin);
+    return (m_CurrentPosition < m_MaxPosition
+      && m_N - 1 + m_CurrentPosition < m_MaxPosition && m_N >= m_NMin);
   }
 
   /**
@@ -269,11 +267,7 @@ public class NGramTokenizer extends CharacterDelimitedTokenizer {
   public String nextElement() {
     String retValue = "";
 
-    // for (int i = 0; i < m_N && i + m_CurrentPosition < m_MaxPosition; i++) {
-    // retValue += " " + m_SplitString[m_CurrentPosition + i];
-    // }
-
-    for (int i = 0; i < m_N; i++) {
+    for (int i = 0; i < m_N && i + m_CurrentPosition < m_MaxPosition; i++) {
       retValue += " " + m_SplitString[m_CurrentPosition + i];
     }
 
@@ -325,10 +319,6 @@ public class NGramTokenizer extends CharacterDelimitedTokenizer {
 
     m_CurrentPosition = 0;
     m_MaxPosition = m_SplitString.length;
-
-    if (m_SplitString.length < m_NMax) {
-      m_N = m_SplitString.length;
-    }
   }
 
   /**

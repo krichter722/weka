@@ -416,8 +416,7 @@ public class WekaPackageManager {
    * @param level logging level
    * @param message message to write
    */
-  protected static void
-    log(weka.core.logging.Logger.Level level, String message) {
+  protected static void log(weka.core.logging.Logger.Level level, String message) {
     try {
       File logFile =
         new File(WEKA_HOME.toString() + File.separator + "weka.log");
@@ -576,9 +575,8 @@ public class WekaPackageManager {
    * Process a package's GUIEditors.props file
    * 
    * @param propsFile the properties file to process
-   * @param verbose true to output more info
    */
-  protected static void processGUIEditorsProps(File propsFile, boolean verbose) {
+  protected static void processGUIEditorsProps(File propsFile) {
     GenericObjectEditor.registerEditors();
     try {
       Properties editorProps = new Properties();
@@ -592,9 +590,7 @@ public class WekaPackageManager {
       while (enm.hasMoreElements()) {
         String name = enm.nextElement().toString();
         String value = editorProps.getProperty(name, "");
-        if (verbose) {
-          System.err.println("Registering " + name + " " + value);
-        }
+        System.err.println("Registering " + name + " " + value);
         GenericObjectEditor.registerEditor(name, value);
       }
 
@@ -665,7 +661,7 @@ public class WekaPackageManager {
         && content.getPath().endsWith("GUIEditors.props")
         && !avoidTriggeringFullClassDiscovery) {
         // Editor for a particular component
-        processGUIEditorsProps(content, verbose);
+        processGUIEditorsProps(content);
       } else if (content.isFile()
         && content.getPath().endsWith("GenericPropertiesCreator.props")
         && !avoidTriggeringFullClassDiscovery) {
@@ -765,20 +761,6 @@ public class WekaPackageManager {
             for (PrintStream p : progress) {
               p.println("[Weka] Can't load " + toLoad.getName() + " because "
                 + d.getTarget() + " can't be loaded.");
-            }
-            return false;
-          }
-
-          // check that the version of installed dependency is OK
-          Package installedD =
-            getInstalledPackageInfo(d.getTarget().getPackage().getName());
-          if (!d.getTarget().checkConstraint(installedD)) {
-            for (PrintStream p : progress) {
-              p.println("[Weka] Can't load " + toLoad.getName()
-                + " because the installed "
-                + d.getTarget().getPackage().getName()
-                + " is not compatible (requires: "
-                + d.getTarget() + ")");
             }
             return false;
           }
@@ -1148,9 +1130,7 @@ public class WekaPackageManager {
     // the GUIs (this is not necessary when executing stuff from
     // the command line)
     if (refreshGOEProperties) {
-      if (verbose) {
-        System.err.println("Refreshing GOE props...");
-      }
+      System.err.println("Refreshing GOE props...");
       refreshGOEProperties();
     }
   }

@@ -70,10 +70,10 @@ public class OutputFormatDialog extends JDialog {
   protected int m_Result;
 
   /** the different classes for outputting the comparison tables. */
-  protected Vector<Class<?>> m_OutputFormatClasses;
+  protected static Vector<Class<?>> m_OutputFormatClasses;
 
   /** the different names of matrices for outputting the comparison tables. */
-  protected Vector<String> m_OutputFormatNames;
+  protected static Vector<String> m_OutputFormatNames;
 
   /** Lets the user configure the result matrix. */
   protected GenericObjectEditor m_ResultMatrixEditor;

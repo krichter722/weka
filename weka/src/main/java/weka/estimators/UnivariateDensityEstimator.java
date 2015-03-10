@@ -15,13 +15,11 @@
 
 /*
  *    UnivariateDensityEstimator.java
- *    Copyright (C) 2009-2012 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2009 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.estimators;
-
-import weka.core.RevisionHandler;
 
 /**
  * Interface that can be implemented by simple weighted univariate
@@ -30,7 +28,7 @@ import weka.core.RevisionHandler;
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @version $Revision$
  */
-public interface UnivariateDensityEstimator extends RevisionHandler {
+public interface UnivariateDensityEstimator {
 
   /**
    * Adds a value to the density estimator.

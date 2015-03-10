@@ -412,7 +412,6 @@ public class ResultSetHelper {
       break;
     case Types.BINARY:
       result = false;
-      break;
     case Types.BIT:
       result = false;
       break;

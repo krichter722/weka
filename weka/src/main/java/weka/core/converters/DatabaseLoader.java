@@ -1264,8 +1264,7 @@ public class DatabaseLoader extends AbstractLoader implements BatchConverter,
         } else {
           Double index = m_nominalIndexes[i - 1].get(str);
           if (index == null) {
-            index =
-              new Double(m_structure.attribute(i - 1).addStringValue(str));
+            index = new Double(m_structure.attribute(i - 1).addStringValue(str));
           }
           vals[i - 1] = index.doubleValue();
         }
@@ -1277,8 +1276,7 @@ public class DatabaseLoader extends AbstractLoader implements BatchConverter,
         } else {
           Double index = m_nominalIndexes[i - 1].get(str);
           if (index == null) {
-            index =
-              new Double(m_structure.attribute(i - 1).addStringValue(str));
+            index = new Double(m_structure.attribute(i - 1).addStringValue(str));
           }
           vals[i - 1] = index.doubleValue();
         }
@@ -1503,11 +1501,8 @@ public class DatabaseLoader extends AbstractLoader implements BatchConverter,
       }
       text.append(m_orderBy.get(i));
     }
-
-    if (text.length() > 0) {
-      options.add("-P");
-      options.add(text.toString());
-    }
+    options.add("-P");
+    options.add(text.toString());
 
     if (m_inc) {
       options.add("-I");

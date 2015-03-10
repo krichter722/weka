@@ -504,7 +504,7 @@ public class Bagging
    */
   @Override
   protected synchronized Instances getTrainingSet(int iteration) throws Exception {
-    int bagSize = (int) (m_data.numInstances() * (m_BagSizePercent / 100.0));
+    int bagSize = m_data.numInstances() * m_BagSizePercent / 100;
     Instances bagData = null;
     Random r = new Random(m_Seed + iteration);
 
@@ -544,9 +544,10 @@ public class Bagging
                                          "WeightedInstancesHandler.");
     }
 
-    // get fresh Instances object
+    // remove instances with missing class
     m_data = new Instances(data);
-   
+    m_data.deleteWithMissingClass();
+    
     super.buildClassifier(m_data);
 
     if (m_CalcOutOfBag && (m_BagSizePercent != 100)) {
@@ -621,7 +622,7 @@ public class Bagging
         }
         
         // error for instance
-        if (!Utils.isMissingValue(vote) && !m_data.instance(i).classIsMissing()) {
+        if (!Utils.isMissingValue(vote)) {
           outOfBagCount += m_data.instance(i).weight();
           if (numeric) {
             errorSum += StrictMath.abs(vote - m_data.instance(i).classValue()) 

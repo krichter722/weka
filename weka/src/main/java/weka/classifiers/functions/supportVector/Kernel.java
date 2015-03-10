@@ -27,7 +27,6 @@ import java.util.Vector;
 
 import weka.core.Capabilities;
 import weka.core.CapabilitiesHandler;
-import weka.core.CapabilitiesIgnorer;
 import weka.core.Copyable;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -47,8 +46,7 @@ import weka.core.Utils;
  * @version $Revision$
  */
 public abstract class Kernel implements Serializable, OptionHandler,
-  CapabilitiesHandler, CapabilitiesIgnorer,
-  RevisionHandler {
+  CapabilitiesHandler, RevisionHandler {
 
   /** for serialization */
   private static final long serialVersionUID = -6102771099905817064L;
@@ -61,42 +59,6 @@ public abstract class Kernel implements Serializable, OptionHandler,
 
   /** Turns off all checks */
   protected boolean m_ChecksTurnedOff = false;
-
-  /** Whether capabilities should not be checked */
-  protected boolean m_DoNotCheckCapabilities = false;
-
-  /**
-   * Returns the tip text for this property
-   * 
-   * @return tip text for this property suitable for displaying in the
-   *         explorer/experimenter gui
-   */
-  public String doNotCheckCapabilitiesTipText() {
-    return "If set, associator capabilities are not checked before associator is built"
-      + " (Use with caution to reduce runtime).";
-  }
-
-  /**
-   * Set whether not to check capabilities.
-   * 
-   * @param doNotCheckCapabilities true if capabilities are not to be checked.
-   */
-  @Override
-  public void setDoNotCheckCapabilities(boolean doNotCheckCapabilities) {
-
-    m_DoNotCheckCapabilities = doNotCheckCapabilities;
-  }
-
-  /**
-   * Get whether capabilities checking is turned off.
-   * 
-   * @return true if capabilities checking is turned off.
-   */
-  @Override
-  public boolean getDoNotCheckCapabilities() {
-
-    return m_DoNotCheckCapabilities;
-  }
 
   /**
    * Returns a string describing the kernel

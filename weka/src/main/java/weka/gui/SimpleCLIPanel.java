@@ -230,10 +230,10 @@ public class SimpleCLIPanel extends ScriptingPanel implements ActionListener {
   public static class CommandlineCompletion {
 
     /** all the available packages. */
-    protected Vector<String> m_Packages;
+    protected static Vector<String> m_Packages;
 
     /** a trie for storing the packages. */
-    protected Trie m_Trie;
+    protected static Trie m_Trie;
 
     /** debug mode on/off. */
     protected boolean m_Debug = false;

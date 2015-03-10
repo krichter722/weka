@@ -1125,57 +1125,33 @@ public class BayesNet extends AbstractClassifier implements OptionHandler,
   } // measureDivergence
 
   public double measureBayesScore() {
-    try {
-      LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
-                                                                  m_Instances);
-      return s.logScore(Scoreable.BAYES);
-    } catch (ArithmeticException ex) {
-      return Double.NaN;
-    }
+    LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
+      m_Instances);
+    return s.logScore(Scoreable.BAYES);
   } // measureBayesScore
 
   public double measureBDeuScore() {
-
-    try {
-      LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
-                                                                  m_Instances);
-      return s.logScore(Scoreable.BDeu);
-    } catch (ArithmeticException ex) {
-      return Double.NaN;
-    }
+    LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
+      m_Instances);
+    return s.logScore(Scoreable.BDeu);
   } // measureBDeuScore
 
   public double measureMDLScore() {
-
-    try {
-      LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
-                                                                  m_Instances);
-      return s.logScore(Scoreable.MDL);
-    } catch (ArithmeticException ex) {
-      return Double.NaN;
-    }
+    LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
+      m_Instances);
+    return s.logScore(Scoreable.MDL);
   } // measureMDLScore
 
   public double measureAICScore() {
-
-    try {
-      LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
-                                                                  m_Instances);
-      return s.logScore(Scoreable.AIC);
-    } catch (ArithmeticException ex) {
-      return Double.NaN;
-    }
+    LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
+      m_Instances);
+    return s.logScore(Scoreable.AIC);
   } // measureAICScore
 
   public double measureEntropyScore() {
-
-    try {
-      LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
-                                                                  m_Instances);
-      return s.logScore(Scoreable.ENTROPY);
-    } catch (ArithmeticException ex) {
-      return Double.NaN;
-    }
+    LocalScoreSearchAlgorithm s = new LocalScoreSearchAlgorithm(this,
+      m_Instances);
+    return s.logScore(Scoreable.ENTROPY);
   } // measureEntropyScore
 
   /**

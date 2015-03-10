@@ -141,7 +141,7 @@ public class GeneticSearch extends GlobalScoreSearchAlgorithm {
    * used in BayesNetRepresentation for efficiently determining whether a number
    * is square
    */
-  boolean[] g_bIsSquare;
+  static boolean[] g_bIsSquare;
 
   class BayesNetRepresentation implements RevisionHandler {
     /** number of nodes in network **/
@@ -454,7 +454,6 @@ public class GeneticSearch extends GlobalScoreSearchAlgorithm {
 
     // free up memory
     bestBayesNet = null;
-    g_bIsSquare = null;
   } // search
 
   /**

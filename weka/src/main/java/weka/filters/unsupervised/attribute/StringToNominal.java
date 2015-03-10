@@ -195,7 +195,16 @@ public class StringToNominal extends Filter implements UnsupervisedFilter,
 
       // Convert pending input instances
       for (int i = 0; i < getInputFormat().numInstances(); i++) {
-        push((Instance) getInputFormat().instance(i).copy());
+        Instance temp = (Instance) getInputFormat().instance(i).copy();
+        for (int j = 0; j < temp.numAttributes(); j++) {
+          if (temp.attribute(j).isString() && !temp.isMissing(j)
+            && m_AttIndices.isInRange(j)) {
+
+            // adjust indexes for the removal of the dummy string value
+            temp.setValue(j, temp.value(j) - 1);
+          }
+        }
+        push(temp);
       }
     }
 
@@ -343,9 +352,9 @@ public class StringToNominal extends Filter implements UnsupervisedFilter,
         newAtts.add(att);
       } else {
 
-        // Compute list of attribute values
+        // Compute list of attribute values - skipping the dummy string value
         newVals = new ArrayList<String>(att.numValues());
-        for (int i = 0; i < att.numValues(); i++) {
+        for (int i = 1; i < att.numValues(); i++) {
           newVals.add(att.value(i));
         }
         Attribute newAtt = new Attribute(att.name(), newVals);

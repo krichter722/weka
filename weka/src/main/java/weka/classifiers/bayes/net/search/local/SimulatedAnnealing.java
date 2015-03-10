@@ -180,10 +180,12 @@ public class SimulatedAnnealing extends LocalScoreSearchAlgorithm implements
       double fDeltaScore = 0.0;
       while (!bRunSucces) {
         // pick two nodes at random
-        int iTailNode = m_random.nextInt(instances.numAttributes());
-        int iHeadNode = m_random.nextInt(instances.numAttributes());
+        int iTailNode = Math.abs(m_random.nextInt())
+          % instances.numAttributes();
+        int iHeadNode = Math.abs(m_random.nextInt())
+          % instances.numAttributes();
         while (iTailNode == iHeadNode) {
-          iHeadNode = m_random.nextInt(instances.numAttributes());
+          iHeadNode = Math.abs(m_random.nextInt()) % instances.numAttributes();
         }
         if (isArc(bayesNet, iHeadNode, iTailNode)) {
           bRunSucces = true;

@@ -15,7 +15,7 @@
 
 /*
  * UpdateableClusterer.java
- * Copyright (C) 2006-2012 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2006 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.clusterers;
@@ -40,7 +40,7 @@ public interface UpdateableClusterer {
   public void updateClusterer(Instance newInstance) throws Exception;
 
   /**
-   * Signals the end of the updating.
+   * Singals the end of the updating.
    */
   public void updateFinished();
 }

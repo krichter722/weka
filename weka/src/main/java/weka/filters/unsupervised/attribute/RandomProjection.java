@@ -47,18 +47,25 @@ import weka.filters.Filter;
 import weka.filters.UnsupervisedFilter;
 
 /**
- * <!-- globalinfo-start -->
- * Reduces the dimensionality of the data by projecting it onto a lower dimensional subspace using a random matrix with columns of unit length (i.e. It will reduce the number of attributes in the data while preserving much of its variation like PCA, but at a much less computational cost).<br/>
- * It first applies the  NominalToBinary filter to convert all attributes to numeric before reducing the dimension. It preserves the class attribute.<br/>
+ * <!-- globalinfo-start --> Reduces the dimensionality of the data by
+ * projecting it onto a lower dimensional subspace using a random matrix with
+ * columns of unit length (i.e. It will reduce the number of attributes in the
+ * data while preserving much of its variation like PCA, but at a much less
+ * computational cost).<br/>
+ * It first applies the NominalToBinary filter to convert all attributes to
+ * numeric before reducing the dimension. It preserves the class attribute.<br/>
  * <br/>
  * For more information, see:<br/>
  * <br/>
- * Dmitriy Fradkin, David Madigan: Experiments with random projections for machine learning. In: KDD '03: Proceedings of the ninth ACM SIGKDD international conference on Knowledge discovery and data mining, New York, NY, USA, 517-522, 003.
+ * Dmitriy Fradkin, David Madigan: Experiments with random projections for
+ * machine learning. In: KDD '03: Proceedings of the ninth ACM SIGKDD
+ * international conference on Knowledge discovery and data mining, New York,
+ * NY, USA, 517-522, 003.
  * <p/>
  * <!-- globalinfo-end -->
  * 
- * <!-- technical-bibtex-start -->
- * BibTeX:
+ * <!-- technical-bibtex-start --> BibTeX:
+ * 
  * <pre>
  * &#64;inproceedings{Fradkin003,
  *    address = {New York, NY, USA},
@@ -73,14 +80,17 @@ import weka.filters.UnsupervisedFilter;
  * <p/>
  * <!-- technical-bibtex-end -->
  * 
- * <!-- options-start -->
- * Valid options are: <p/>
+ * <!-- options-start --> Valid options are:
+ * <p/>
  * 
- * <pre> -N &lt;number&gt;
+ * <pre>
+ * -N &lt;number&gt;
  *  The number of dimensions (attributes) the data should be reduced to
- *  (default 10; exclusive of the class attribute, if it is set).</pre>
+ *  (default 10; exclusive of the class attribute, if it is set).
+ * </pre>
  * 
- * <pre> -D [SPARSE1|SPARSE2|GAUSSIAN]
+ * <pre>
+ * -D [SPARSE1|SPARSE2|GAUSSIAN]
  *  The distribution to use for calculating the random matrix.
  *  Sparse1 is:
  *    sqrt(3)*{-1 with prob(1/6), 0 with prob(2/3), +1 with prob(1/6)}
@@ -88,18 +98,24 @@ import weka.filters.UnsupervisedFilter;
  *    {-1 with prob(1/2), +1 with prob(1/2)}
  * </pre>
  * 
- * <pre> -P &lt;percent&gt;
+ * <pre>
+ * -P &lt;percent&gt;
  *  The percentage of dimensions (attributes) the data should
- *  be reduced to (exclusive of the class attribute, if it is set). The -N
- *  option is ignored if this option is present and is greater
- *  than zero.</pre>
+ *  be reduced to (exclusive of the class attribute, if it is set). This -N
+ *  option is ignored if this option is present or is greater
+ *  than zero.
+ * </pre>
  * 
- * <pre> -M
- *  Replace missing values using the ReplaceMissingValues filter</pre>
+ * <pre>
+ * -M
+ *  Replace missing values using the ReplaceMissingValues filter
+ * </pre>
  * 
- * <pre> -R &lt;num&gt;
+ * <pre>
+ * -R &lt;num&gt;
  *  The random seed for the random number generator used for
- *  calculating the random matrix (default 42).</pre>
+ *  calculating the random matrix (default 42).
+ * </pre>
  * 
  * <!-- options-end -->
  * 
@@ -196,8 +212,8 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
     newVector
       .addElement(new Option(
         "\tThe percentage of dimensions (attributes) the data should\n"
-          + "\tbe reduced to (exclusive of the class attribute, if it is set). The -N\n"
-          + "\toption is ignored if this option is present and is greater\n"
+          + "\tbe reduced to (exclusive of the class attribute, if it is set). This -N\n"
+          + "\toption is ignored if this option is present or is greater\n"
           + "\tthan zero.", "P", 1, "-P <percent>"));
 
     newVector.addElement(new Option(
@@ -215,14 +231,17 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
    * Parses a given list of options.
    * <p/>
    * 
-   * <!-- options-start -->
-   * Valid options are: <p/>
+   * <!-- options-start --> Valid options are:
+   * <p/>
    * 
-   * <pre> -N &lt;number&gt;
+   * <pre>
+   * -N &lt;number&gt;
    *  The number of dimensions (attributes) the data should be reduced to
-   *  (default 10; exclusive of the class attribute, if it is set).</pre>
+   *  (default 10; exclusive of the class attribute, if it is set).
+   * </pre>
    * 
-   * <pre> -D [SPARSE1|SPARSE2|GAUSSIAN]
+   * <pre>
+   * -D [SPARSE1|SPARSE2|GAUSSIAN]
    *  The distribution to use for calculating the random matrix.
    *  Sparse1 is:
    *    sqrt(3)*{-1 with prob(1/6), 0 with prob(2/3), +1 with prob(1/6)}
@@ -230,18 +249,24 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
    *    {-1 with prob(1/2), +1 with prob(1/2)}
    * </pre>
    * 
-   * <pre> -P &lt;percent&gt;
+   * <pre>
+   * -P &lt;percent&gt;
    *  The percentage of dimensions (attributes) the data should
-   *  be reduced to (exclusive of the class attribute, if it is set). The -N
-   *  option is ignored if this option is present and is greater
-   *  than zero.</pre>
+   *  be reduced to (exclusive of the class attribute, if it is set). This -N
+   *  option is ignored if this option is present or is greater
+   *  than zero.
+   * </pre>
    * 
-   * <pre> -M
-   *  Replace missing values using the ReplaceMissingValues filter</pre>
+   * <pre>
+   * -M
+   *  Replace missing values using the ReplaceMissingValues filter
+   * </pre>
    * 
-   * <pre> -R &lt;num&gt;
+   * <pre>
+   * -R &lt;num&gt;
    *  The random seed for the random number generator used for
-   *  calculating the random matrix (default 42).</pre>
+   *  calculating the random matrix (default 42).
+   * </pre>
    * 
    * <!-- options-end -->
    * 
@@ -313,7 +338,7 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
       options.add("-M");
     }
 
-    if (getPercent() <= 0) {
+    if (getPercent() == 0) {
       options.add("-N");
       options.add("" + getNumberOfAttributes());
     } else {
@@ -557,7 +582,6 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
     // attributes
     result.enableAllAttributes();
     result.enable(Capability.MISSING_VALUES);
-    result.disable(Capability.STRING_ATTRIBUTES);
 
     // class
     result.enable(Capability.NUMERIC_CLASS);
@@ -925,4 +949,3 @@ public class RandomProjection extends Filter implements UnsupervisedFilter,
     runFilter(new RandomProjection(), argv);
   }
 }
-

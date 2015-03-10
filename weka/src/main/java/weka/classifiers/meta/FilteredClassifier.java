@@ -26,8 +26,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import weka.classifiers.SingleClassifierEnhancer;
-import weka.classifiers.IterativeClassifier;
-import weka.core.BatchPredictor;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Drawable;
@@ -38,7 +36,6 @@ import weka.core.Option;
 import weka.core.OptionHandler;
 import weka.core.RevisionUtils;
 import weka.core.Utils;
-import weka.core.WekaException;
 import weka.filters.Filter;
 
 /**
@@ -108,7 +105,7 @@ import weka.filters.Filter;
  */
 public class FilteredClassifier 
   extends SingleClassifierEnhancer 
-  implements Drawable, PartitionGenerator, IterativeClassifier,  BatchPredictor {
+  implements Drawable, PartitionGenerator {
 
   /** for serialization */
   static final long serialVersionUID = -4523450618538717400L;
@@ -229,50 +226,6 @@ public class FilteredClassifier
       return ((PartitionGenerator)m_Classifier).numElements();
     else throw new Exception("Classifier: " + getClassifierSpec()
 			     + " cannot generate a partition");
-  }
-
-  /**
-   * Initializes an iterative classifier.
-   * (If the base classifier supports this.)
-   *
-   * @param data the instances to be used in induction
-   * @exception Exception if the model cannot be initialized
-   */
-  public void initializeClassifier(Instances data) throws Exception {
-
-    if (m_Classifier instanceof IterativeClassifier)
-      ((IterativeClassifier)m_Classifier).initializeClassifier(setUp(data));
-    else throw new Exception("Classifier: " + getClassifierSpec()
-			     + " is not an IterativeClassifier");
-  }
-  
-  /**
-   * Performs one iteration.
-   * (If the base classifier supports this.)
-   *
-   * @return false if no further iterations could be performed, true otherwise
-   * @exception Exception if this iteration fails for unexpected reasons
-   */
-  public boolean next() throws Exception {
-    
-    if (m_Classifier instanceof IterativeClassifier)
-      return ((IterativeClassifier)m_Classifier).next();
-    else throw new Exception("Classifier: " + getClassifierSpec()
-			     + " is not an IterativeClassifier");
-  }
-  
-  /**
-   * Signal end of iterating, useful for any house-keeping/cleanup
-   * (If the base classifier supports this.)
-   *
-   * @exception Exception if cleanup fails
-   */
-  public void done() throws Exception {
-
-    if (m_Classifier instanceof IterativeClassifier)
-      ((IterativeClassifier)m_Classifier).done();
-    else throw new Exception("Classifier: " + getClassifierSpec()
-			     + " is not an IterativeClassifier");
   }
 
   /**
@@ -469,11 +422,12 @@ public class FilteredClassifier
   }
 
   /**
-   * Sets up the filter and runs checks.
+   * Build the classifier on the filtered data.
    *
-   * @return filtered data
+   * @param data the training data
+   * @throws Exception if the classifier could not be built successfully
    */
-  protected Instances setUp(Instances data) throws Exception {
+  public void buildClassifier(Instances data) throws Exception {
 
     if (m_Classifier == null) {
       throw new Exception("No base classifiers have been set!");
@@ -481,9 +435,10 @@ public class FilteredClassifier
 
     getCapabilities().testWithFail(data);
 
-    // get fresh instances object
+    // remove instances with missing class
     data = new Instances(data);
-   
+    data.deleteWithMissingClass();
+    
     /*
     String fname = m_Filter.getClass().getName();
     fname = fname.substring(fname.lastIndexOf('.') + 1);
@@ -498,18 +453,7 @@ public class FilteredClassifier
     getClassifier().getCapabilities().testWithFail(data);
 
     m_FilteredInstances = data.stringFreeStructure();
-    return data;
-  }
-
-  /**
-   * Build the classifier on the filtered data.
-   *
-   * @param data the training data
-   * @throws Exception if the classifier could not be built successfully
-   */
-  public void buildClassifier(Instances data) throws Exception {
-
-    m_Classifier.buildClassifier(setUp(data));
+    m_Classifier.buildClassifier(data);
   }
 
   /**
@@ -579,70 +523,6 @@ public class FilteredClassifier
       return unclassified;
     } else {
       return m_Classifier.distributionForInstance(newInstance);
-    }
-  }
-  
-  /**
-   * Tool tip text for this property
-   * 
-   * @return the tool tip for this property
-   */
-  public String batchSizeTipText() {
-    return "Batch size to use if base learner is a BatchPredictor";
-  }
-
-  /**
-   * Set the batch size to use. Gets passed through to the base learner
-   * if it implements BatchPrecitor. Otherwise it is just ignored.
-   *
-   * @param size the batch size to use
-   */
-  public void setBatchSize(String size) {
-
-    if (getClassifier() instanceof BatchPredictor) {
-      ((BatchPredictor)getClassifier()).setBatchSize(size);
-    }
-  }
-
-  /**
-   * Gets the preferred batch size from the
-   * base learner if it implements BatchPredictor. 
-   * Returns 1 as the preferred batch size otherwise.
-   *
-   * @return the batch size to use
-   */
-  public String getBatchSize() {
-
-    if (getClassifier() instanceof BatchPredictor) {
-      return ((BatchPredictor)getClassifier()).getBatchSize();
-    } else {
-      return "1";
-    }
-  }
-
-  /**
-   * Batch scoring method. Calls the appropriate method for the base learner
-   * if it implements BatchPredictor. Otherwise it simply calls the
-   * distributionForInstance() method repeatedly.
-   * 
-   * @param insts the instances to get predictions for
-   * @return an array of probability distributions, one for each instance
-   * @throws Exception if a problem occurs
-   */
-  public double[][] distributionsForInstances(Instances insts) throws Exception {
-
-    if (getClassifier() instanceof BatchPredictor) {
-      Instances filteredInsts = Filter.useFilter(insts, m_Filter);
-      if (filteredInsts.numInstances() != insts.numInstances()) {
-        throw new WekaException("FilteredClassifier: filter has returned more/less instances than required.");
-      }
-      return ((BatchPredictor)getClassifier()).distributionsForInstances(filteredInsts);
-    } else {
-      double[][] result = new double[insts.numInstances()][insts.numClasses()];
-      for (int i = 0; i < insts.numInstances(); i++) {
-        result[i] = distributionForInstance(insts.instance(i));
-      }
-      return result;
     }
   }
 

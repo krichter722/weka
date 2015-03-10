@@ -56,14 +56,6 @@ public abstract class SingleClassifierEnhancer extends AbstractClassifier {
   }
 
   /**
-   * String describing options for default classifier.
-   */
-  protected String[] defaultClassifierOptions() {
-
-    return new String[0];
-  }
-
-  /**
    * Returns an enumeration describing the available options.
    *
    * @return an enumeration of all the available options.
@@ -74,9 +66,7 @@ public abstract class SingleClassifierEnhancer extends AbstractClassifier {
 
     newVector.addElement(new Option(
           "\tFull name of base classifier.\n"
-          + "\t(default: " + defaultClassifierString() + 
-          ((defaultClassifierOptions().length > 0) ? 
-           " with options " + Utils.joinOptions(defaultClassifierOptions()) + ")" : ")"),
+          + "\t(default: " + defaultClassifierString() +")",
           "W", 1, "-W"));
     
     newVector.addAll(Collections.list(super.listOptions()));
@@ -113,14 +103,8 @@ public abstract class SingleClassifierEnhancer extends AbstractClassifier {
             Utils.partitionOptions(options)));
     } else {
       setClassifier(AbstractClassifier.forName(defaultClassifierString(), null));
-      String[] classifierOptions = Utils.partitionOptions(options);
-      if (classifierOptions.length > 0) {
-        setClassifier(AbstractClassifier.forName(defaultClassifierString(),
-                                                 classifierOptions));
-      } else {
-        setClassifier(AbstractClassifier.forName(defaultClassifierString(),
-                                                 defaultClassifierOptions()));
-      }
+      setClassifier(AbstractClassifier.forName(defaultClassifierString(),
+            Utils.partitionOptions(options)));
     }
   }
 

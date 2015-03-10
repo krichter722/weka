@@ -592,7 +592,7 @@ public abstract class CheckScheme
       for (int j = 0; j < data.numAttributes(); j++) {
         if (((j == classIndex) && classMissing) ||
             ((j != classIndex) && predictorMissing)) {
-          if (random.nextInt(100) < level)
+          if (Math.abs(random.nextInt()) % 100 < level)
             current.setMissing(j);
         }
       }

@@ -162,6 +162,10 @@ public class SimpleEstimator extends BayesNetEstimator {
     double[] fProbs = new double[nNumClasses];
 
     for (int iClass = 0; iClass < nNumClasses; iClass++) {
+      fProbs[iClass] = 1.0;
+    }
+
+    for (int iClass = 0; iClass < nNumClasses; iClass++) {
       double logfP = 0;
 
       for (int iAttribute = 0; iAttribute < instances.numAttributes(); iAttribute++) {
@@ -210,11 +214,7 @@ public class SimpleEstimator extends BayesNetEstimator {
     }
 
     // Display probabilities
-    try {
-      Utils.normalize(fProbs);
-    } catch (IllegalArgumentException ex) {
-      return new double[nNumClasses]; // predict missing value
-    }
+    Utils.normalize(fProbs);
 
     return fProbs;
   } // distributionForInstance

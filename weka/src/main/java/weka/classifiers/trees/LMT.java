@@ -272,7 +272,7 @@ public class LMT extends AbstractClassifier implements OptionHandler,
     // create tree root
     m_tree = new LMTNode(modSelection, m_numBoostingIterations,
       m_fastRegression, m_errorOnProbabilities, m_minNumInstances,
-      m_weightTrimBeta, m_useAIC, m_nominalToBinary, m_numDecimalPlaces);
+      m_weightTrimBeta, m_useAIC, m_nominalToBinary);
     // build tree
     m_tree.buildClassifier(filteredData);
 
@@ -900,16 +900,6 @@ public class LMT extends AbstractClassifier implements OptionHandler,
   public String doNotMakeSplitPointActualValueTipText() {
     return "If true, the split point is not relocated to an actual data value."
       + " This can yield substantial speed-ups for large datasets with numeric attributes.";
-  }
-
-  /**
-   * Returns the tip text for this property
-   *
-   * @return tip text for this property suitable for displaying in the
-   *         explorer/experimenter gui
-   */
-  public String numDecimalPlacesTipText() {
-    return "The number of decimal places to be used for the output of coefficients.";
   }
 
   /**

@@ -32,11 +32,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.math.RoundingMode;
 import java.net.URL;
 import java.text.BreakIterator;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -48,7 +45,7 @@ import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.
- *
+ * 
  * @author Eibe Frank
  * @author Yong Wang
  * @author Len Trigg
@@ -57,33 +54,11 @@ import weka.gui.PropertySheetPanel;
  */
 public final class Utils implements RevisionHandler {
 
-  /**
-   * The natural logarithm of 2.
-   */
+  /** The natural logarithm of 2. */
   public static double log2 = Math.log(2);
 
-  /**
-   * The small deviation allowed in double comparisons.
-   */
+  /** The small deviation allowed in double comparisons. */
   public static double SMALL = 1e-6;
-
-  /** Decimal format */
-  private static final ThreadLocal<DecimalFormat> DF = new ThreadLocal<DecimalFormat>() {
-
-    @Override
-    protected DecimalFormat initialValue() {
-
-      DecimalFormat df = new DecimalFormat();
-      DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
-      dfs.setDecimalSeparator('.');
-      dfs.setNaN("NaN");
-      dfs.setInfinity("Infinity");
-      df.setGroupingUsed(false);
-      df.setRoundingMode(RoundingMode.HALF_UP);
-      df.setDecimalFormatSymbols(dfs);
-      return df;
-    }
-  };
 
   /**
    * Tests if the given value codes "missing".
@@ -116,7 +91,7 @@ public final class Utils implements RevisionHandler {
   public static <T> T cast(Object x) {
     return (T) x;
   }
-  
+
   /**
    * Reads properties that inherit from three locations. Properties are first
    * defined in the system resource location (i.e. in the CLASSPATH). These
@@ -279,32 +254,6 @@ public final class Utils implements RevisionHandler {
 
   /**
    * Pads a string to a specified length, inserting spaces on the left as
-   * required. If the string is too long, it is simply returned unchanged.
-   * 
-   * @param inString the input string
-   * @param length the desired length of the output string
-   * @return the output string
-   */
-  public static String padLeftAndAllowOverflow(String inString, int length) {
-
-    return String.format("%1$" + length + "s", inString);
-  }
-
-  /**
-   * Pads a string to a specified length, inserting spaces on the right as
-   * required. If the string is too long, it is simply returned unchanged.
-   * 
-   * @param inString the input string
-   * @param length the desired length of the output string
-   * @return the output string
-   */
-  public static String padRightAndAllowOverflow(String inString, int length) {
-
-	  return String.format("%1$-" + length + "s", inString);
-  }
-
-  /**
-   * Pads a string to a specified length, inserting spaces on the left as
    * required. If the string is too long, characters are removed (from the
    * right).
    * 
@@ -314,7 +263,7 @@ public final class Utils implements RevisionHandler {
    */
   public static String padLeft(String inString, int length) {
 
-    return String.format("%1$" + length + "." + length + "s", inString);
+    return fixStringLength(inString, length, false);
   }
 
   /**
@@ -328,7 +277,29 @@ public final class Utils implements RevisionHandler {
    */
   public static String padRight(String inString, int length) {
 
-    return String.format("%1$-" + length + "." + length + "s", inString);
+    return fixStringLength(inString, length, true);
+  }
+
+  /**
+   * Pads a string to a specified length, inserting spaces as required. If the
+   * string is too long, characters are removed (from the right).
+   * 
+   * @param inString the input string
+   * @param length the desired length of the output string
+   * @param right true if inserted spaces should be added to the right
+   * @return the output string
+   */
+  private static/* @pure@ */String fixStringLength(String inString, int length,
+    boolean right) {
+
+    if (inString.length() < length) {
+      while (inString.length() < length) {
+        inString = (right ? inString.concat(" ") : " ".concat(inString));
+      }
+    } else if (inString.length() > length) {
+      inString = inString.substring(0, length);
+    }
+    return inString;
   }
 
   /**
@@ -342,8 +313,50 @@ public final class Utils implements RevisionHandler {
   public static/* @pure@ */String doubleToString(double value,
     int afterDecimalPoint) {
 
-    DF.get().setMaximumFractionDigits(afterDecimalPoint);
-    return DF.get().format(value);
+    StringBuffer stringBuffer;
+    double temp;
+    int dotPosition;
+    long precisionValue;
+
+    temp = value * Math.pow(10.0, afterDecimalPoint);
+    if (Math.abs(temp) < Long.MAX_VALUE) {
+      precisionValue = (temp > 0) ? (long) (temp + 0.5) : -(long) (Math
+        .abs(temp) + 0.5);
+      if (precisionValue == 0) {
+        stringBuffer = new StringBuffer(String.valueOf(0));
+      } else {
+        stringBuffer = new StringBuffer(String.valueOf(precisionValue));
+      }
+      if (afterDecimalPoint == 0) {
+        return stringBuffer.toString();
+      }
+      dotPosition = stringBuffer.length() - afterDecimalPoint;
+      while (((precisionValue < 0) && (dotPosition < 1)) || (dotPosition < 0)) {
+        if (precisionValue < 0) {
+          stringBuffer.insert(1, '0');
+        } else {
+          stringBuffer.insert(0, '0');
+        }
+        dotPosition++;
+      }
+      stringBuffer.insert(dotPosition, '.');
+      if ((precisionValue < 0) && (stringBuffer.charAt(1) == '.')) {
+        stringBuffer.insert(1, '0');
+      } else if (stringBuffer.charAt(0) == '.') {
+        stringBuffer.insert(0, '0');
+      }
+      int currentPos = stringBuffer.length() - 1;
+      while ((currentPos > dotPosition)
+        && (stringBuffer.charAt(currentPos) == '0')) {
+        stringBuffer.setCharAt(currentPos--, ' ');
+      }
+      if (stringBuffer.charAt(currentPos) == '.') {
+        stringBuffer.setCharAt(currentPos, ' ');
+      }
+
+      return stringBuffer.toString().trim();
+    }
+    return new String("" + value);
   }
 
   /**
@@ -362,7 +375,9 @@ public final class Utils implements RevisionHandler {
     char[] result;
     int dotPosition;
 
-    if (afterDecimalPoint >= width) {
+    if ((afterDecimalPoint >= width) || (tempString.indexOf('E') != -1)) { // Protects
+                                                                           // sci
+                                                                           // notation
       return tempString;
     }
 
@@ -1063,10 +1078,6 @@ public final class Utils implements RevisionHandler {
   public static Object forName(Class<?> classType, String className,
     String[] options) throws Exception {
 
-    if (System.getProperty("weka.test.maventest", "").equalsIgnoreCase("true")) {
-      return forNameNoSchemeMatch(classType, className, options);
-    }
-
     List<String> matches = Run.findSchemeMatch(classType, className, false,
       true);
     if (matches.size() == 0) {
@@ -1091,54 +1102,6 @@ public final class Utils implements RevisionHandler {
       throw new Exception("Can't find class called: " + className);
     }
 
-    Object o = c.newInstance();
-    if ((o instanceof OptionHandler) && (options != null)) {
-      ((OptionHandler) o).setOptions(options);
-      Utils.checkForRemainingOptions(options);
-    }
-    return o;
-  }
-
-  /**
-   * Creates a new instance of an object given it's class name and (optional)
-   * arguments to pass to it's setOptions method. If the object implements
-   * OptionHandler and the options parameter is non-null, the object will have
-   * it's options set. Example use:
-   * <p>
-   * 
-   * <code> <pre>
-   * String classifierName = Utils.getOption('W', options);
-   * Classifier c = (Classifier)Utils.forName(Classifier.class,
-   *                                          classifierName,
-   *                                          options);
-   * setClassifier(c);
-   * </pre></code>
-   * 
-   * @param classType the class that the instantiated object should be
-   *          assignable to -- an exception is thrown if this is not the case
-   * @param className the fully qualified class name of the object
-   * @param options an array of options suitable for passing to setOptions. May
-   *          be null. Any options accepted by the object will be removed from
-   *          the array.
-   * @return the newly created object, ready for use.
-   * @exception Exception if the class name is invalid, or if the class is not
-   *              assignable to the desired class type, or the options supplied
-   *              are not acceptable to the object
-   */
-  protected static Object forNameNoSchemeMatch(Class classType,
-    String className,
-    String[] options) throws Exception {
-
-    Class c = null;
-    try {
-      c = Class.forName(className);
-    } catch (Exception ex) {
-      throw new Exception("Can't find class called: " + className);
-    }
-    if (!classType.isAssignableFrom(c)) {
-      throw new Exception(classType.getName() + " is not assignable from "
-        + className);
-    }
     Object o = c.newInstance();
     if ((o instanceof OptionHandler) && (options != null)) {
       ((OptionHandler) o).setOptions(options);
@@ -1605,7 +1568,7 @@ public final class Utils implements RevisionHandler {
    * @return an array of integers with the positions in the sorted array.
    */
   public static/* @pure@ */int[] sortWithNoMissingValues(
-    /* @non_null@ */double[] array) {
+  /* @non_null@ */double[] array) {
 
     int[] index = initialIndex(array.length);
     if (array.length > 1) {
@@ -1675,25 +1638,23 @@ public final class Utils implements RevisionHandler {
    */
   public static/* @pure@ */double variance(double[] vector) {
 
-    if (vector.length <= 1)
-      return Double.NaN;
-    
-    double mean = 0;
-    double var = 0;
-    
-    for (int i = 0; i < vector.length; i++) {
-      double delta = vector[i] - mean;
-      mean += delta/(i + 1);
-      var += (vector[i] - mean)*delta;
+    double sum = 0, sumSquared = 0;
+
+    if (vector.length <= 1) {
+      return 0;
     }
-    
-    var /= vector.length - 1;
+    for (double element : vector) {
+      sum += element;
+      sumSquared += (element * element);
+    }
+    double result = (sumSquared - (sum * sum / vector.length))
+      / (vector.length - 1);
 
     // We don't like negative variance
-    if (var < 0) {
+    if (result < 0) {
       return 0;
     } else {
-      return var;
+      return result;
     }
   }
 
@@ -1902,8 +1863,7 @@ public final class Utils implements RevisionHandler {
 
       // Move pivot to the right, partition, and restore pivot
       swap(index, pivotLocation, right - 1);
-      int center =
-        partition(array, index, left, right, array[index[right - 1]]);
+      int center = partition(array, index, left, right, array[index[right - 1]]);
       swap(index, center, right - 1);
 
       // Sort recursively
@@ -1976,8 +1936,7 @@ public final class Utils implements RevisionHandler {
 
       // Move pivot to the right, partition, and restore pivot
       swap(index, pivotLocation, right - 1);
-      int center =
-        partition(array, index, left, right, array[index[right - 1]]);
+      int center = partition(array, index, left, right, array[index[right - 1]]);
       swap(index, center, right - 1);
 
       // Proceed recursively

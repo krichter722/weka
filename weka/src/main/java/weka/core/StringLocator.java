@@ -147,7 +147,14 @@ public class StringLocator extends AttributeLocator {
       Attribute dest = destDataset.attribute(destLoc.getActualIndex(destLoc
         .getAttributeIndices()[i]));
       if (!instance.isMissing(instIndex)) {
-        int valIndex = dest.addStringValue(src, (int) instance.value(instIndex));
+        if (instance instanceof SparseInstance
+            && src.value((int)instance.value(instIndex)).equals(Attribute.DUMMY_STRING_VAL)) {
+          continue;
+        }
+
+        int valIndex = dest
+          .addStringValue(src, (int) instance.value(instIndex));
+
         instance.setValue(instIndex, valIndex);
       }
     }

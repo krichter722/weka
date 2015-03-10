@@ -49,7 +49,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import weka.gui.Logger;
@@ -105,8 +104,7 @@ public class TextViewer extends JPanel implements TextListener,
   /**
    * Objects listening for text events
    */
-  private final Vector<TextListener> m_textListeners =
-    new Vector<TextListener>();
+  private final Vector<TextListener> m_textListeners = new Vector<TextListener>();
 
   public TextViewer() {
     java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -121,9 +119,8 @@ public class TextViewer extends JPanel implements TextListener,
     setUpResultHistory();
     removeAll();
     if (m_visual == null) {
-      m_visual =
-        new BeanVisual("TextViewer", BeanVisual.ICON_PATH + "DefaultText.gif",
-          BeanVisual.ICON_PATH + "DefaultText_animated.gif");
+      m_visual = new BeanVisual("TextViewer", BeanVisual.ICON_PATH
+        + "DefaultText.gif", BeanVisual.ICON_PATH + "DefaultText_animated.gif");
     }
     setLayout(new BorderLayout());
     add(m_visual, BorderLayout.CENTER);
@@ -265,9 +262,8 @@ public class TextViewer extends JPanel implements TextListener,
    */
   @Override
   public synchronized void acceptDataSet(DataSetEvent e) {
-    TextEvent nt =
-      new TextEvent(e.getSource(), e.getDataSet().toString(), e.getDataSet()
-        .relationName());
+    TextEvent nt = new TextEvent(e.getSource(), e.getDataSet().toString(), e
+      .getDataSet().relationName());
     acceptText(nt);
   }
 
@@ -278,9 +274,8 @@ public class TextViewer extends JPanel implements TextListener,
    */
   @Override
   public synchronized void acceptTrainingSet(TrainingSetEvent e) {
-    TextEvent nt =
-      new TextEvent(e.getSource(), e.getTrainingSet().toString(), e
-        .getTrainingSet().relationName());
+    TextEvent nt = new TextEvent(e.getSource(), e.getTrainingSet().toString(),
+      e.getTrainingSet().relationName());
     acceptText(nt);
   }
 
@@ -291,9 +286,8 @@ public class TextViewer extends JPanel implements TextListener,
    */
   @Override
   public synchronized void acceptTestSet(TestSetEvent e) {
-    TextEvent nt =
-      new TextEvent(e.getSource(), e.getTestSet().toString(), e.getTestSet()
-        .relationName());
+    TextEvent nt = new TextEvent(e.getSource(), e.getTestSet().toString(), e
+      .getTestSet().relationName());
     acceptText(nt);
   }
 
@@ -313,6 +307,10 @@ public class TextViewer extends JPanel implements TextListener,
     // m_outText.setText(m_resultsString.toString());
     String name = (new SimpleDateFormat("HH:mm:ss - ")).format(new Date());
     name += e.getTextTitle();
+    // System.err.println(name);
+    if (name.length() > 30) {
+      name = name.substring(0, 30);
+    }
 
     if (m_outText != null) {
       // see if there is an entry with this name already in the list -
@@ -403,12 +401,8 @@ public class TextViewer extends JPanel implements TextListener,
       m_resultsFrame.getContentPane().setLayout(new BorderLayout());
       final JScrollPane js = new JScrollPane(m_outText);
       js.setBorder(BorderFactory.createTitledBorder("Text"));
-
-      JSplitPane p2 =
-        new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, m_history, js);
-      m_resultsFrame.getContentPane().add(p2, BorderLayout.CENTER);
-      // m_resultsFrame.getContentPane().add(js, BorderLayout.CENTER);
-      // m_resultsFrame.getContentPane().add(m_history, BorderLayout.WEST);
+      m_resultsFrame.getContentPane().add(js, BorderLayout.CENTER);
+      m_resultsFrame.getContentPane().add(m_history, BorderLayout.WEST);
       m_resultsFrame.addWindowListener(new java.awt.event.WindowAdapter() {
         @Override
         public void windowClosing(java.awt.event.WindowEvent e) {

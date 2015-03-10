@@ -135,7 +135,7 @@ public class GeneticSearch extends LocalScoreSearchAlgorithm {
    * used in BayesNetRepresentation for efficiently determining whether a number
    * is square
    */
-  boolean[] g_bIsSquare;
+  static boolean[] g_bIsSquare;
 
   class BayesNetRepresentation implements RevisionHandler {
 
@@ -451,7 +451,6 @@ public class GeneticSearch extends LocalScoreSearchAlgorithm {
 
     // free up memory
     bestBayesNet = null;
-    g_bIsSquare = null;
   } // search
 
   /**

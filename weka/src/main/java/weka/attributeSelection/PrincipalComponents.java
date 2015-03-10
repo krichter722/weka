@@ -25,15 +25,29 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import weka.core.*;
+import weka.core.Attribute;
+import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.OptionHandler;
+import weka.core.RevisionUtils;
+import weka.core.SparseInstance;
+import weka.core.Utils;
 import weka.core.matrix.EigenvalueDecomposition;
 import weka.core.matrix.Matrix;
 import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.*;
+import weka.filters.unsupervised.attribute.Center;
+import weka.filters.unsupervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.unsupervised.attribute.ReplaceMissingValues;
+import weka.filters.unsupervised.attribute.Standardize;
 
 /**
- * <!-- globalinfo-start --> Performs a principal components analysis and
+ <!-- globalinfo-start --> 
+ * Performs a principal components analysis and
  * transformation of the data. Use in conjunction with a Ranker search.
  * Dimensionality reduction is accomplished by choosing enough eigenvectors to
  * account for some percentage of the variance in the original data---default
@@ -41,9 +55,10 @@ import weka.filters.unsupervised.attribute.*;
  * eliminating some of the worst eigenvectors, and then transforming back to the
  * original space.
  * <p/>
- * <!-- globalinfo-end -->
+ <!-- globalinfo-end -->
  * 
- * <!-- options-start --> Valid options are:
+ <!-- options-start --> 
+ * Valid options are:
  * <p/>
  * 
  * <pre>
@@ -72,7 +87,7 @@ import weka.filters.unsupervised.attribute.*;
  *  transformed attribute names. (-1 = include all)
  * </pre>
  * 
- * <!-- options-end -->
+ <!-- options-end -->
  * 
  * @author Mark Hall (mhall@cs.waikato.ac.nz)
  * @author Gabi Schmidberger (gabi@cs.waikato.ac.nz)
@@ -166,7 +181,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns a string describing this attribute transformer
-   *
+   * 
    * @return a description of the evaluator suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -183,7 +198,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Returns an enumeration describing the available options.
    * <p>
-   *
+   * 
    * @return an enumeration of all the available options.
    **/
   @Override
@@ -210,38 +225,39 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Parses a given list of options.
    * <p/>
-   *
-   * <!-- options-start --> Valid options are:
+   * 
+   <!-- options-start --> 
+   * Valid options are:
    * <p/>
-   *
+   * 
    * <pre>
    * -C
    *  Center (rather than standardize) the
    *  data and compute PCA using the covariance (rather
    *   than the correlation) matrix.
    * </pre>
-   *
+   * 
    * <pre>
    * -R
-   *  Retain enough PC attributes to account
+   *  Retain enough PC attributes to account 
    *  for this proportion of variance in the original data.
    *  (default = 0.95)
    * </pre>
-   *
+   * 
    * <pre>
    * -O
-   *  Transform through the PC space and
+   *  Transform through the PC space and 
    *  back to the original space.
    * </pre>
-   *
+   * 
    * <pre>
    * -A
-   *  Maximum number of attributes to include in
+   *  Maximum number of attributes to include in 
    *  transformed attribute names. (-1 = include all)
    * </pre>
-   *
-   * <!-- options-end -->
-   *
+   * 
+   <!-- options-end -->
+   * 
    * @param options the list of options as an array of strings
    * @throws Exception if an option is not supported
    */
@@ -276,7 +292,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -288,7 +304,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Set whether to center (rather than standardize) the data. If set to true
    * then PCA is computed from the covariance rather than correlation matrix.
-   *
+   * 
    * @param center true if the data is to be centered rather than standardized
    */
   public void setCenterData(boolean center) {
@@ -307,7 +323,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -319,7 +335,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Sets the amount of variance to account for when retaining principal
    * components
-   *
+   * 
    * @param vc the proportion of total variance to account for
    */
   public void setVarianceCovered(double vc) {
@@ -338,7 +354,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -349,7 +365,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Sets maximum number of attributes to include in transformed attribute
    * names.
-   *
+   * 
    * @param m the maximum number of attributes
    */
   public void setMaximumAttributeNames(int m) {
@@ -368,7 +384,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the tip text for this property
-   *
+   * 
    * @return tip text for this property suitable for displaying in the
    *         explorer/experimenter gui
    */
@@ -381,7 +397,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Sets whether the data should be transformed back to the original space
-   *
+   * 
    * @param b true if the data should be transformed back to the original space
    */
   public void setTransformBackToOriginal(boolean b) {
@@ -399,7 +415,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Gets the current settings of PrincipalComponents
-   *
+   * 
    * @return an array of strings suitable for passing to setOptions()
    */
   @Override
@@ -426,7 +442,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the capabilities of this evaluator.
-   *
+   * 
    * @return the capabilities of this evaluator
    * @see Capabilities
    */
@@ -443,7 +459,6 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
     // class
     result.enable(Capability.NOMINAL_CLASS);
-    result.enable(Capability.UNARY_CLASS);
     result.enable(Capability.NUMERIC_CLASS);
     result.enable(Capability.DATE_CLASS);
     result.enable(Capability.MISSING_CLASS_VALUES);
@@ -454,7 +469,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Initializes principal components and performs the analysis
-   *
+   * 
    * @param data the instances to analyse/transform
    * @throws Exception if analysis fails
    */
@@ -480,8 +495,8 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
     m_replaceMissingFilter = new ReplaceMissingValues();
     m_replaceMissingFilter.setInputFormat(m_trainInstances);
-    m_trainInstances =
-      Filter.useFilter(m_trainInstances, m_replaceMissingFilter);
+    m_trainInstances = Filter.useFilter(m_trainInstances,
+      m_replaceMissingFilter);
 
     /*
      * if (m_normalize) { m_normalizeFilter = new Normalize();
@@ -527,6 +542,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
     m_numInstances = m_trainInstances.numInstances();
     m_numAttribs = m_trainInstances.numAttributes();
 
+    // fillCorrelation();
     fillCovariance();
 
     EigenvalueDecomposition eig = new Matrix(m_correlation).eig();
@@ -553,18 +569,15 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
       m_originalSpaceFormat = setOutputFormatOriginal();
 
       // new ordered eigenvector matrix
-      int numVectors =
-        (m_transformedFormat.classIndex() < 0) ? m_transformedFormat
-          .numAttributes() : m_transformedFormat.numAttributes() - 1;
+      int numVectors = (m_transformedFormat.classIndex() < 0) ? m_transformedFormat
+        .numAttributes() : m_transformedFormat.numAttributes() - 1;
 
-      double[][] orderedVectors =
-        new double[m_eigenvectors.length][numVectors + 1];
+      double[][] orderedVectors = new double[m_eigenvectors.length][numVectors + 1];
 
       // try converting back to the original space
       for (int i = m_numAttribs - 1; i > (m_numAttribs - numVectors - 1); i--) {
         for (int j = 0; j < m_numAttribs; j++) {
-          orderedVectors[j][m_numAttribs - i] =
-            m_eigenvectors[j][m_sortedEigens[i]];
+          orderedVectors[j][m_numAttribs - i] = m_eigenvectors[j][m_sortedEigens[i]];
         }
       }
 
@@ -585,7 +598,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
    * instances. This is so that AttributeSelection can determine the structure
    * of the transformed data without actually having to get all the transformed
    * data through transformedData().
-   *
+   * 
    * @return the header of the transformed data.
    * @throws Exception if the header of the transformed data can't be
    *           determined.
@@ -605,7 +618,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Return the header of the training data after all filtering - i.e missing
    * values and nominal to binary.
-   *
+   * 
    * @return the header of the training data after all filtering.
    */
   public Instances getFilteredInputFormat() {
@@ -614,7 +627,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Return the correlation/covariance matrix
-   *
+   * 
    * @return the correlation or covariance matrix
    */
   public double[][] getCorrelationMatrix() {
@@ -623,7 +636,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Return the unsorted eigenvectors
-   *
+   * 
    * @return the unsorted eigenvectors
    */
   public double[][] getUnsortedEigenVectors() {
@@ -632,7 +645,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Return the eigenvalues corresponding to the eigenvectors
-   *
+   * 
    * @return the eigenvalues
    */
   public double[] getEigenValues() {
@@ -641,7 +654,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Gets the transformed training data.
-   *
+   * 
    * @return the transformed training data
    * @throws Exception if transformed data can't be returned
    */
@@ -670,7 +683,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
    * Evaluates the merit of a transformed attribute. This is defined to be 1
    * minus the cumulative variance explained. Merit can't be meaningfully
    * evaluated if the data is to be transformed back to the original space.
-   *
+   * 
    * @param att the attribute to be evaluated
    * @return the merit of a transformed attribute
    * @throws Exception if attribute can't be evaluated
@@ -700,29 +713,34 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
     m_stdDevs = new double[m_trainInstances.numAttributes()];
     for (int i = 0; i < m_trainInstances.numAttributes(); i++) {
       m_means[i] = m_trainInstances.meanOrMode(i);
-      m_stdDevs[i] =
-        Math.sqrt(Utils.variance(m_trainInstances.attributeToDoubleArray(i)));
     }
 
-    // just center the data or standardize it?
-    if (m_center) {
-      m_centerFilter = new Center();
-      m_centerFilter.setInputFormat(m_trainInstances);
-      m_trainInstances = Filter.useFilter(m_trainInstances, m_centerFilter);
-    } else {
-      m_standardizeFilter = new Standardize();
-      m_standardizeFilter.setInputFormat(m_trainInstances);
-      m_trainInstances = Filter.useFilter(m_trainInstances, m_standardizeFilter);
+    if (!m_center) {
+      fillCorrelation();
+      return;
     }
+
+    // now center the data by subtracting the mean
+    m_centerFilter = new Center();
+    m_centerFilter.setInputFormat(m_trainInstances);
+    m_trainInstances = Filter.useFilter(m_trainInstances, m_centerFilter);
 
     // now compute the covariance matrix
     m_correlation = new double[m_numAttribs][m_numAttribs];
+
     for (int i = 0; i < m_numAttribs; i++) {
-      for (int j = i; j < m_numAttribs; j++) {
+      for (int j = 0; j < m_numAttribs; j++) {
 
         double cov = 0;
-        for (Instance inst: m_trainInstances) {
-          cov += inst.value(i) * inst.value(j);
+        for (int k = 0; k < m_numInstances; k++) {
+
+          if (i == j) {
+            cov += (m_trainInstances.instance(k).value(i) * m_trainInstances
+              .instance(k).value(i));
+          } else {
+            cov += (m_trainInstances.instance(k).value(i) * m_trainInstances
+              .instance(k).value(j));
+          }
         }
 
         cov /= m_trainInstances.numInstances() - 1;
@@ -733,8 +751,41 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   }
 
   /**
+   * Fill the correlation matrix
+   */
+  private void fillCorrelation() throws Exception {
+    m_correlation = new double[m_numAttribs][m_numAttribs];
+    double[] att1 = new double[m_numInstances];
+    double[] att2 = new double[m_numInstances];
+    double corr;
+
+    for (int i = 0; i < m_numAttribs; i++) {
+      for (int j = 0; j < m_numAttribs; j++) {
+        for (int k = 0; k < m_numInstances; k++) {
+          att1[k] = m_trainInstances.instance(k).value(i);
+          att2[k] = m_trainInstances.instance(k).value(j);
+        }
+        if (i == j) {
+          m_correlation[i][j] = 1.0;
+          // store the standard deviation
+          m_stdDevs[i] = Math.sqrt(Utils.variance(att1));
+        } else {
+          corr = Utils.correlation(att1, att2, m_numInstances);
+          m_correlation[i][j] = corr;
+          m_correlation[j][i] = corr;
+        }
+      }
+    }
+
+    // now standardize the input data
+    m_standardizeFilter = new Standardize();
+    m_standardizeFilter.setInputFormat(m_trainInstances);
+    m_trainInstances = Filter.useFilter(m_trainInstances, m_standardizeFilter);
+  }
+
+  /**
    * Return a summary of the analysis
-   *
+   * 
    * @return a summary of the analysis.
    */
   private String principalComponentsSummary() {
@@ -745,9 +796,8 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
     try {
       output = setOutputFormat();
-      numVectors =
-        (output.classIndex() < 0) ? output.numAttributes() : output
-          .numAttributes() - 1;
+      numVectors = (output.classIndex() < 0) ? output.numAttributes() : output
+        .numAttributes() - 1;
     } catch (Exception ex) {
     }
     // tomorrow
@@ -791,7 +841,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns a description of this attribute transformer
-   *
+   * 
    * @return a String describing this attribute transformer
    */
   @Override
@@ -806,7 +856,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Return a matrix as a String
-   *
+   * 
    * @param matrix that is decribed as a string
    * @return a String describing a matrix
    */
@@ -827,7 +877,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Convert a pc transformed instance back to the original space
-   *
+   * 
    * @param inst the instance to convert
    * @return the processed instance
    * @throws Exception if something goes wrong
@@ -868,7 +918,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
   /**
    * Transform an instance in original (unormalized) format. Convert back to the
    * original space if requested.
-   *
+   * 
    * @param instance an instance in the original (unormalized) format
    * @return a transformed instance
    * @throws Exception if instance cant be transformed
@@ -955,7 +1005,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Set up the header for the PC->original space dataset
-   *
+   * 
    * @return the output format
    * @throws Exception if something goes wrong
    */
@@ -971,9 +1021,8 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
       attributes.add((Attribute) m_trainHeader.classAttribute().copy());
     }
 
-    Instances outputFormat =
-      new Instances(m_trainHeader.relationName() + "->PC->original space",
-        attributes, 0);
+    Instances outputFormat = new Instances(m_trainHeader.relationName()
+      + "->PC->original space", attributes, 0);
 
     // set the class to be the last attribute if necessary
     if (m_hasClass) {
@@ -985,7 +1034,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Set the format for the transformed data
-   *
+   * 
    * @return a set of empty Instances (header only) in the new format
    * @throws Exception if the output format can't be set
    */
@@ -1003,9 +1052,8 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
       for (int j = 0; j < m_numAttribs; j++) {
         coeff_mags[j] = -Math.abs(m_eigenvectors[j][m_sortedEigens[i]]);
       }
-      int num_attrs =
-        (m_maxAttrsInName > 0) ? Math.min(m_numAttribs, m_maxAttrsInName)
-          : m_numAttribs;
+      int num_attrs = (m_maxAttrsInName > 0) ? Math.min(m_numAttribs,
+        m_maxAttrsInName) : m_numAttribs;
       // this array contains the sorted indices of the coefficients
       int[] coeff_inds;
       if (m_numAttribs > 0) {
@@ -1043,9 +1091,8 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
       attributes.add((Attribute) m_trainHeader.classAttribute().copy());
     }
 
-    Instances outputFormat =
-      new Instances(m_trainInstances.relationName() + "_principal components",
-        attributes, 0);
+    Instances outputFormat = new Instances(m_trainInstances.relationName()
+      + "_principal components", attributes, 0);
 
     // set the class to be the last attribute if necessary
     if (m_hasClass) {
@@ -1058,7 +1105,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Returns the revision string.
-   *
+   * 
    * @return the revision
    */
   @Override
@@ -1068,7 +1115,7 @@ public class PrincipalComponents extends UnsupervisedAttributeEvaluator
 
   /**
    * Main method for testing this class
-   *
+   * 
    * @param argv should contain the command line arguments to the
    *          evaluator/transformer (see AttributeSelection)
    */

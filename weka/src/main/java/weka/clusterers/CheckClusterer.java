@@ -903,7 +903,6 @@ public class CheckClusterer extends CheckScheme {
       evaluationI = new ClusterEvaluation();
       clusterers[0].buildClusterer(train);
       evaluationB.setClusterer(clusterers[0]);
-      evaluationB.evaluateClusterer(train);
     } catch (Exception ex) {
       throw new Error("Error setting up for tests: " + ex.getMessage());
     }
@@ -915,14 +914,13 @@ public class CheckClusterer extends CheckScheme {
       }
       Random random = new Random(1);
       for (int i = 0; i < train.numInstances() / 2; i++) {
-        int inst = random.nextInt(train.numInstances());
-        int weight = random.nextInt(10) + 1;
+        int inst = Math.abs(random.nextInt()) % train.numInstances();
+        int weight = Math.abs(random.nextInt()) % 10 + 1;
         train.instance(inst).setWeight(weight);
       }
       clusterers[1].buildClusterer(train);
       built = true;
       evaluationI.setClusterer(clusterers[1]);
-      evaluationI.evaluateClusterer(train);
       if (evaluationB.equals(evaluationI)) {
         // println("no");
         evalFail = true;
@@ -1078,7 +1076,6 @@ public class CheckClusterer extends CheckScheme {
       evaluationI = new ClusterEvaluation();
       clusterers[0].buildClusterer(train);
       evaluationB.setClusterer(clusterers[0]);
-      evaluationB.evaluateClusterer(train);
     } catch (Exception ex) {
       throw new Error("Error setting up for tests: " + ex.getMessage());
     }
@@ -1090,7 +1087,6 @@ public class CheckClusterer extends CheckScheme {
       }
       built = true;
       evaluationI.setClusterer(clusterers[1]);
-      evaluationI.evaluateClusterer(train);
       if (!evaluationB.equals(evaluationI)) {
         println("no");
         result[0] = false;
@@ -1222,7 +1218,7 @@ public class CheckClusterer extends CheckScheme {
       Instance current = data.instance(i);
       for (int j = 0; j < data.numAttributes(); j++) {
         if (predictorMissing) {
-          if (random.nextInt(100) < level) {
+          if (Math.abs(random.nextInt()) % 100 < level) {
             current.setMissing(j);
           }
         }

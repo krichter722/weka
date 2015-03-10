@@ -172,13 +172,43 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
   /** for serialization */
   private static final long serialVersionUID = -7064906770289728431L;
 
+  // /**
+  // * Location of the property file for the KnowledgeFlowApp
+  // */
+  // protected static final String PROPERTY_FILE = "weka/gui/beans/Beans.props";
+  //
+  // /** Location of the property file listing available templates */
+  // protected static final String TEMPLATE_PROPERTY_FILE =
+  // "weka/gui/beans/templates/templates.props";
+  //
+  // /** The paths to template resources */
+  // private static List<String> TEMPLATE_PATHS;
+  // /** Short descriptions for templates suitable for displaying in a menu */
+  // private static List<String> TEMPLATE_DESCRIPTIONS;
+  //
+  // /** Contains the editor properties */
+  // protected static Properties BEAN_PROPERTIES;
+  //
+  // /** Contains the plugin components properties */
+  // private static ArrayList<Properties> BEAN_PLUGINS_PROPERTIES = new
+  // ArrayList<Properties>();
+  //
+  // /**
+  // * Contains the user's selection of available perspectives to be visible in
+  // * the perspectives toolbar
+  // */
+  // protected static String VISIBLE_PERSPECTIVES_PROPERTIES_FILE =
+  // "weka/gui/beans/VisiblePerspectives.props";
+  //
+  // /** Those perspectives that the user has opted to have visible in the
+  // toolbar */
+  // protected static SortedSet<String> VISIBLE_PERSPECTIVES;
+
   /** Map of all plugin perspectives */
-  protected Map<String, String> m_pluginPerspectiveLookup =
-    new HashMap<String, String>();
+  protected Map<String, String> m_pluginPerspectiveLookup = new HashMap<String, String>();
 
   /** Those perspectives that have been instantiated */
-  protected Map<String, KFPerspective> m_perspectiveCache =
-    new HashMap<String, KFPerspective>();
+  protected Map<String, KFPerspective> m_perspectiveCache = new HashMap<String, KFPerspective>();
 
   /**
    * Holds the details needed to construct button bars for various supported
@@ -186,25 +216,25 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    */
   private static Vector<Vector<?>> TOOLBARS = new Vector<Vector<?>>();
 
-  /**
-   * Add a plugin bean props file
-   * 
-   * @param beanPropsFile the plugin properties to add
-   * @throws Exception if a problem occurs
-   */
   public static void addToPluginBeanProps(File beanPropsFile) throws Exception {
     BeansProperties.addToPluginBeanProps(beanPropsFile);
+    // Properties tempP = new Properties();
+    //
+    // tempP.load(new FileInputStream(beanPropsFile));
+    // if (!BEAN_PLUGINS_PROPERTIES.contains(tempP)) {
+    // BEAN_PLUGINS_PROPERTIES.add(tempP);
+    // }
   }
 
-  /**
-   * Remove a plugin bean props file
-   * 
-   * @param beanPropsFile the plugin properties to remove
-   * @throws Exception if a problem occurs
-   */
   public static void removeFromPluginBeanProps(File beanPropsFile)
     throws Exception {
     BeansProperties.removeFromPluginBeanProps(beanPropsFile);
+    // Properties tempP = new Properties();
+    //
+    // tempP.load(new FileInputStream(beanPropsFile));
+    // if (BEAN_PLUGINS_PROPERTIES.contains(tempP)) {
+    // BEAN_PLUGINS_PROPERTIES.remove(tempP);
+    // }
   }
 
   /**
@@ -212,6 +242,158 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    */
   public static synchronized void loadProperties() {
     BeansProperties.loadProperties();
+    // if (BEAN_PROPERTIES == null) {
+    // weka.core.WekaPackageManager.loadPackages(false);
+    // System.err.println("[KnowledgeFlow] Loading properties and plugins...");
+    // /** Loads the configuration property file */
+    // // static {
+    // // Allow a properties file in the current directory to override
+    // try {
+    // BEAN_PROPERTIES = Utils.readProperties(PROPERTY_FILE);
+    // java.util.Enumeration<?> keys = BEAN_PROPERTIES.propertyNames();
+    // if (!keys.hasMoreElements()) {
+    // throw new Exception(
+    // "Could not read a configuration file for the bean\n"
+    // + "panel. An example file is included with the Weka distribution.\n"
+    // + "This file should be named \"" + PROPERTY_FILE + "\" and\n"
+    // + "should be placed either in your user home (which is set\n"
+    // + "to \"" + System.getProperties().getProperty("user.home")
+    // + "\")\n" + "or the directory that java was started from\n");
+    // }
+    // } catch (Exception ex) {
+    // JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
+    // JOptionPane.ERROR_MESSAGE);
+    // }
+    //
+    // if (VISIBLE_PERSPECTIVES == null) {
+    // // set up built-in perspectives
+    // Properties pp = new Properties();
+    // pp.setProperty("weka.gui.beans.KnowledgeFlow.Perspectives",
+    // "weka.gui.beans.ScatterPlotMatrix,weka.gui.beans.AttributeSummarizer,"
+    // + "weka.gui.beans.SQLViewerPerspective");
+    // BEAN_PLUGINS_PROPERTIES.add(pp);
+    //
+    // VISIBLE_PERSPECTIVES = new TreeSet<String>();
+    // try {
+    //
+    // Properties visible = Utils
+    // .readProperties(VISIBLE_PERSPECTIVES_PROPERTIES_FILE);
+    // Enumeration<?> keys = visible.propertyNames();
+    // if (keys.hasMoreElements()) {
+    // String listedPerspectives = visible
+    // .getProperty("weka.gui.beans.KnowledgeFlow.SelectedPerspectives");
+    // if (listedPerspectives != null && listedPerspectives.length() > 0) {
+    // // split up the list of user selected perspectives and populate
+    // // VISIBLE_PERSPECTIVES
+    // StringTokenizer st = new StringTokenizer(listedPerspectives, ", ");
+    //
+    // while (st.hasMoreTokens()) {
+    // String perspectiveName = st.nextToken().trim();
+    // System.err.println("Adding perspective " + perspectiveName
+    // + " to visible list");
+    // VISIBLE_PERSPECTIVES.add(perspectiveName);
+    // }
+    // }
+    // }
+    // } catch (Exception ex) {
+    // JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
+    // JOptionPane.ERROR_MESSAGE);
+    // }
+    // }
+    //
+    // }
+    //
+    // // System templates
+    // if (TEMPLATE_PATHS == null) {
+    // TEMPLATE_PATHS = new ArrayList<String>();
+    // TEMPLATE_DESCRIPTIONS = new ArrayList<String>();
+    //
+    // try {
+    // Properties templateProps = Utils.readProperties(TEMPLATE_PROPERTY_FILE);
+    // String paths = templateProps
+    // .getProperty("weka.gui.beans.KnowledgeFlow.templates");
+    // String descriptions = templateProps
+    // .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
+    // if (paths == null || paths.length() == 0) {
+    // System.err
+    // .println("[KnowledgeFlow] WARNING: no templates found in classpath");
+    // } else {
+    // String[] templates = paths.split(",");
+    // String[] desc = descriptions.split(",");
+    // if (templates.length != desc.length) {
+    // throw new Exception("Number of template descriptions does "
+    // + "not match number of templates.");
+    // }
+    // for (String template : templates) {
+    // TEMPLATE_PATHS.add(template.trim());
+    // }
+    // for (String d : desc) {
+    // TEMPLATE_DESCRIPTIONS.add(d.trim());
+    // }
+    // }
+    // } catch (Exception ex) {
+    // JOptionPane.showMessageDialog(null, ex.getMessage(), "KnowledgeFlow",
+    // JOptionPane.ERROR_MESSAGE);
+    // }
+    // }
+    //
+    // if (!s_pluginManagerIntialized && BEAN_PLUGINS_PROPERTIES != null
+    // && BEAN_PLUGINS_PROPERTIES.size() > 0) {
+    // for (int i = 0; i < BEAN_PLUGINS_PROPERTIES.size(); i++) {
+    // Properties tempP = BEAN_PLUGINS_PROPERTIES.get(i);
+    // // Check for OffScreenChartRenderers
+    // String offscreenRenderers = tempP
+    // .getProperty("weka.gui.beans.OffscreenChartRenderer");
+    // if (offscreenRenderers != null && offscreenRenderers.length() > 0) {
+    // String[] parts = offscreenRenderers.split(",");
+    // for (String renderer : parts) {
+    // renderer = renderer.trim();
+    // // Check that we can instantiate it successfully
+    // try {
+    // Object p = Class.forName(renderer).newInstance();
+    // if (p instanceof OffscreenChartRenderer) {
+    // String name = ((OffscreenChartRenderer) p).rendererName();
+    // PluginManager.addPlugin(
+    // "weka.gui.beans.OffscreenChartRenderer", name, renderer);
+    // System.err
+    // .println("[KnowledgeFlow] registering chart rendering "
+    // + "plugin: " + renderer);
+    // }
+    // } catch (Exception ex) {
+    //
+    // System.err.println("[KnowledgeFlow] WARNING: "
+    // + "unable to instantiate chart renderer \"" + renderer + "\"");
+    // ex.printStackTrace();
+    //
+    // }
+    // }
+    // }
+    //
+    // // Check for user templates
+    // String templatePaths = tempP
+    // .getProperty("weka.gui.beans.KnowledgeFlow.templates");
+    // String templateDesc = tempP
+    // .getProperty("weka.gui.beans.KnowledgeFlow.templates.desc");
+    // if (templatePaths != null && templatePaths.length() > 0
+    // && templateDesc != null && templateDesc.length() > 0) {
+    // String[] templates = templatePaths.split(",");
+    // String[] desc = templateDesc.split(",");
+    // // quietly ignore any user-templates that are not consistent
+    // if (templates.length == desc.length) {
+    //
+    // for (int kk = 0; kk < templates.length; kk++) {
+    // String pth = templates[kk];
+    // String d = desc[kk];
+    // if (!TEMPLATE_PATHS.contains(pth)) {
+    // TEMPLATE_PATHS.add(pth.trim());
+    // TEMPLATE_DESCRIPTIONS.add(d.trim());
+    // }
+    // }
+    // }
+    // }
+    // }
+    // s_pluginManagerIntialized = true;
+    // }
   }
 
   public static void reInitialize() {
@@ -223,8 +405,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
    * Initializes the temporary files necessary to construct the toolbars from.
    */
   private static void init() {
-    weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO,
-      "[KnowledgeFlow] Initializing KF...");
+    System.err.println("[KnowledgeFlow] Initializing KF...");
 
     // suppress these benign warnings when loading/deserializing XML flows
     if (!XMLBeans.SUPPRESS_PROPERTY_WARNINGS.contains("visual.iconPath")) {
@@ -297,14 +478,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
           Hashtable<String, String> roots = GenericObjectEditor
             .sortClassesByRoot(wekaAlgs);
-          Hashtable<String, HierarchyPropertyParser> hpps =
-            new Hashtable<String, HierarchyPropertyParser>();
+          Hashtable<String, HierarchyPropertyParser> hpps = new Hashtable<String, HierarchyPropertyParser>();
           Enumeration<String> enm = roots.keys();
           while (enm.hasMoreElements()) {
             String root = enm.nextElement();
             String classes = roots.get(root);
-            weka.gui.HierarchyPropertyParser hpp =
-              new weka.gui.HierarchyPropertyParser();
+            weka.gui.HierarchyPropertyParser hpp = new weka.gui.HierarchyPropertyParser();
             hpp.build(classes, ", ");
             // System.err.println(hpp.showTree());
             hpps.put(root, hpp);
@@ -875,8 +1054,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     protected List<KFLogPanel> m_logPanels = new ArrayList<KFLogPanel>();
 
     /** List of environment variable settings - one for each tab */
-    protected List<Environment> m_environmentSettings =
-      new ArrayList<Environment>();
+    protected List<Environment> m_environmentSettings = new ArrayList<Environment>();
 
     /** List of flow file paths - one for each tab */
     protected List<File> m_filePaths = new ArrayList<File>();
@@ -891,14 +1069,12 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     protected List<RunThread> m_executionThreads = new ArrayList<RunThread>();
 
     /** Keeps track of any highlighted beans on the canvas for a tab */
-    protected List<Vector<Object>> m_selectedBeans =
-      new ArrayList<Vector<Object>>();
+    protected List<Vector<Object>> m_selectedBeans = new ArrayList<Vector<Object>>();
 
     /** Keeps track of the undo buffers for each tab */
     protected List<Stack<File>> m_undoBufferList = new ArrayList<Stack<File>>();
 
-    protected Map<String, DefaultMutableTreeNode> m_nodeTextIndex =
-      new LinkedHashMap<String, DefaultMutableTreeNode>();
+    protected Map<String, DefaultMutableTreeNode> m_nodeTextIndex = new LinkedHashMap<String, DefaultMutableTreeNode>();
 
     @Override
     public void setActive(boolean active) {
@@ -1164,6 +1340,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     public synchronized void setTabTitle(int index, String title) {
       if (index < getNumTabs() && index >= 0) {
+        System.err.println("Setting tab title to " + title);
         m_flowTabs.setTitleAt(index, title);
         ((CloseableTabTitle) m_flowTabs.getTabComponentAt(index)).revalidate();
 
@@ -1959,19 +2136,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           }
           if (!Utils
             .getDontShowDialog("weka.gui.beans.KnowledgeFlow.SequentialRunInfo")) {
-            JCheckBox dontShow =
-              new JCheckBox("Do not show this message again");
+            JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
-            stuff[0] =
-              "The order that data sources are launched in can be\n"
-                + "specified by setting a custom name for each data source that\n"
-                + "that includes a number. E.g. \"1:MyArffLoader\". To set a name,\n"
-                + "right-click over a data source and select \"Set name\"\n\n"
-                + "If the prefix is not specified, then the order of execution\n"
-                + "will correspond to the order that the components were added\n"
-                + "to the layout. Note that it is also possible to prevent a data\n"
-                + "source from executing by prefixing its name with a \"!\". E.g\n"
-                + "\"!:MyArffLoader\"";
+            stuff[0] = "The order that data sources are launched in can be\n"
+              + "specified by setting a custom name for each data source that\n"
+              + "that includes a number. E.g. \"1:MyArffLoader\". To set a name,\n"
+              + "right-click over a data source and select \"Set name\"\n\n"
+              + "If the prefix is not specified, then the order of execution\n"
+              + "will correspond to the order that the components were added\n"
+              + "to the layout. Note that it is also possible to prevent a data\n"
+              + "source from executing by prefixing its name with a \"!\". E.g\n"
+              + "\"!:MyArffLoader\"";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
@@ -2103,18 +2278,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
           if (!Utils
             .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
-            JCheckBox dontShow =
-              new JCheckBox("Do not show this message again");
+            JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
-            stuff[0] =
-              "Perspectives are environments that take over the\n"
-                + "Knowledge Flow UI and provide major additional functionality.\n"
-                + "Many perspectives will operate on a set of instances. Instances\n"
-                + "Can be sent to a perspective by placing a DataSource on the\n"
-                + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
-                + "from the contextual popup menu that appears when you right-click on\n"
-                + "it. Several perspectives are built in to the Knowledge Flow, others\n"
-                + "can be installed via the package manager.\n";
+            stuff[0] = "Perspectives are environments that take over the\n"
+              + "Knowledge Flow UI and provide major additional functionality.\n"
+              + "Many perspectives will operate on a set of instances. Instances\n"
+              + "Can be sent to a perspective by placing a DataSource on the\n"
+              + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
+              + "from the contextual popup menu that appears when you right-click on\n"
+              + "it. Several perspectives are built in to the Knowledge Flow, others\n"
+              + "can be installed via the package manager.\n";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
@@ -2199,10 +2372,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             // end modifications by Zerbetto
           } catch (Exception ex) {
             // ignore
-            weka.core.logging.Logger.log(
-              weka.core.logging.Logger.Level.WARNING,
-              "[KnowledgeFlow] Failed to instantiate: "
-                + tempBeanCompName);
+            System.err.println("[KnowledgeFlow] Failed to instantiate: "
+              + tempBeanCompName);
 
             break;
           }
@@ -2225,6 +2396,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             hpp = hpps.get(root);
 
             if (!hpp.goTo(rootPackage)) {
+              System.out.println("[KnowledgeFlow] Processing user package... ");
             }
 
             String[] primaryPackages = hpp.childrenValues();
@@ -2304,9 +2476,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                  * primaryPackages[kk]));
                  */
 
-                DefaultMutableTreeNode firstLevelOfMainAlgoType =
-                  new InvisibleNode(
-                    primaryPackage);
+                DefaultMutableTreeNode firstLevelOfMainAlgoType = new InvisibleNode(
+                  primaryPackage);
                 subTreeNode.add(firstLevelOfMainAlgoType);
 
                 // processPackage(holderPanel, tempBeanCompName, hpp,
@@ -2408,8 +2579,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               if (tipText != null) {
                 leafData.setToolTipText(tipText);
               }
-              DefaultMutableTreeNode fixedLeafNode =
-                new InvisibleNode(leafData);
+              DefaultMutableTreeNode fixedLeafNode = new InvisibleNode(leafData);
               if (targetFolder != null) {
                 targetFolder.add(fixedLeafNode);
               } else {
@@ -2559,10 +2729,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
                 Object p = Class.forName(className).newInstance();
                 if (p instanceof KFPerspective && p instanceof JPanel) {
                   String title = ((KFPerspective) p).getPerspectiveTitle();
-                  weka.core.logging.Logger.log(
-                    weka.core.logging.Logger.Level.INFO,
-                    "[KnowledgeFlow] loaded perspective: "
-                      + title);
+                  System.out.println("[KnowledgeFlow] loaded perspective: "
+                    + title);
                   m_pluginPerspectiveLookup.put(className, title);
 
                   // not selected as part of the users set of perspectives
@@ -2643,8 +2811,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_componentTree.setRootVisible(false);
       m_componentTree.setShowsRootHandles(true);
       m_componentTree.setCellRenderer(new BeanIconRenderer());
-      DefaultTreeSelectionModel selectionModel =
-        new DefaultTreeSelectionModel();
+      DefaultTreeSelectionModel selectionModel = new DefaultTreeSelectionModel();
       selectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
       m_componentTree.setSelectionModel(selectionModel);
 
@@ -2655,6 +2822,15 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           if (((e.getModifiers() & InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)
             || e.isAltDown()) {
             boolean clearSelection = true;
+            /*
+             * TreePath path = m_componentTree.getPathForLocation(e.getX(),
+             * e.getY()); if (path != null) { DefaultMutableTreeNode tNode =
+             * (DefaultMutableTreeNode)path.getLastPathComponent();
+             * 
+             * if (tNode.isLeaf()) { System.out.println("Rick click selection");
+             * 
+             * // m_componentTree.setSelectionPath(path); } }
+             */
 
             if (clearSelection) {
               // right click cancels selected component
@@ -2728,10 +2904,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void keyReleased(KeyEvent e) {
           String searchTerm = searchField.getText();
-          List<DefaultMutableTreeNode> nonhits =
-            new ArrayList<DefaultMutableTreeNode>();
-          List<DefaultMutableTreeNode> hits =
-            new ArrayList<DefaultMutableTreeNode>();
+          List<DefaultMutableTreeNode> nonhits = new ArrayList<DefaultMutableTreeNode>();
+          List<DefaultMutableTreeNode> hits = new ArrayList<DefaultMutableTreeNode>();
           DefaultTreeModel model = (DefaultTreeModel) m_componentTree
             .getModel();
           model.reload(); // collapse all nodes first
@@ -2880,8 +3054,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       m_environmentSettings.add(new Environment());
       m_filePaths.add(new File("-NONE-"));
 
-      JSplitPane p2 =
-        new JSplitPane(JSplitPane.VERTICAL_SPLIT, p1, tabLogPanel);
+      JSplitPane p2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, p1, tabLogPanel);
       p2.setOneTouchExpandable(true);
       // p2.setDividerLocation(500);
       p2.setDividerLocation(0.7);
@@ -3146,8 +3319,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
      */
     private static final long serialVersionUID = -2224509243343105276L;
 
-    public synchronized void
-      setMessageOnAll(boolean mainKFLine, String message) {
+    public synchronized void setMessageOnAll(boolean mainKFLine, String message) {
       for (String key : m_tableIndexes.keySet()) {
         if (!mainKFLine && key.equals("[KnowledgeFlow]")) {
           continue;
@@ -3426,9 +3598,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         Enumeration<?> keys = visible.propertyNames();
         if (keys.hasMoreElements()) {
 
-          String toolBarIsVisible =
-            visible
-              .getProperty("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble");
+          String toolBarIsVisible = visible
+            .getProperty("weka.gui.beans.KnowledgeFlow.PerspectiveToolBarVisisble");
           if (toolBarIsVisible != null && toolBarIsVisible.length() > 0) {
             m_configAndPerspectivesVisible = toolBarIsVisible
               .equalsIgnoreCase("yes");
@@ -3457,18 +3628,16 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         public void actionPerformed(ActionEvent e) {
           if (!Utils
             .getDontShowDialog("weka.gui.beans.KnowledgeFlow.PerspectiveInfo")) {
-            JCheckBox dontShow =
-              new JCheckBox("Do not show this message again");
+            JCheckBox dontShow = new JCheckBox("Do not show this message again");
             Object[] stuff = new Object[2];
-            stuff[0] =
-              "Perspectives are environments that take over the\n"
-                + "Knowledge Flow UI and provide major additional functionality.\n"
-                + "Many perspectives will operate on a set of instances. Instances\n"
-                + "Can be sent to a perspective by placing a DataSource on the\n"
-                + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
-                + "from the contextual popup menu that appears when you right-click on\n"
-                + "it. Several perspectives are built in to the Knowledge Flow, others\n"
-                + "can be installed via the package manager.\n";
+            stuff[0] = "Perspectives are environments that take over the\n"
+              + "Knowledge Flow UI and provide major additional functionality.\n"
+              + "Many perspectives will operate on a set of instances. Instances\n"
+              + "Can be sent to a perspective by placing a DataSource on the\n"
+              + "layout canvas, configuring it and then selecting \"Send to perspective\"\n"
+              + "from the contextual popup menu that appears when you right-click on\n"
+              + "it. Several perspectives are built in to the Knowledge Flow, others\n"
+              + "can be installed via the package manager.\n";
             stuff[1] = dontShow;
 
             JOptionPane.showMessageDialog(KnowledgeFlowApp.this, stuff,
@@ -3586,10 +3755,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               Object p = Class.forName(selectedClassName).newInstance();
               if (p instanceof KFPerspective && p instanceof JPanel) {
                 String title = ((KFPerspective) p).getPerspectiveTitle();
-                weka.core.logging.Logger.log(
-                  weka.core.logging.Logger.Level.INFO,
-                  "[KnowledgeFlow] loaded perspective: "
-                    + title);
+                System.out.println("[KnowledgeFlow] loaded perspective: "
+                  + title);
 
                 ((KFPerspective) p).setLoaded(true);
                 ((KFPerspective) p).setMainKFPerspective(m_mainKFPerspective);
@@ -3969,7 +4136,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               // Give the target bean a chance to veto the proposed
               // connection
               if (((BeanCommon) bi.getBean()).
-                // connectionAllowed(m_sourceEventSetDescriptor.getName())) {
+              // connectionAllowed(m_sourceEventSetDescriptor.getName())) {
                 connectionAllowed(m_sourceEventSetDescriptor)) {
                 doConnection = true;
               }
@@ -4122,8 +4289,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
     // end modifications
     if (imageURL == null) {
-      weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-        "Unable to load " + path);
+      // System.err.println("Warning: unable to load "+path);
     } else {
       pic = Toolkit.getDefaultToolkit().getImage(imageURL);
     }
@@ -4272,43 +4438,38 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         String algName = hpp.fullValue();
 
         Object visibleCheck = instantiateBean(true, tempBeanCompName, algName);
-        if (visibleCheck != null) {
-          if (visibleCheck instanceof BeanContextChild) {
-            m_bcSupport.add(visibleCheck);
-          }
-          ImageIcon scaledForTree = null;
-          if (visibleCheck instanceof Visible) {
-            BeanVisual bv = ((Visible) visibleCheck).getVisual();
-            if (bv != null) {
-              scaledForTree = new ImageIcon(bv.scale(0.33));
-              // m_iconLookup.put(algName, scaledForTree);
-            }
-          }
-
-          // try and get a tool tip
-          String toolTip = "";
-          try {
-            Object wrappedA = Class.forName(algName).newInstance();
-            toolTip = getGlobalInfo(wrappedA);
-          } catch (Exception ex) {
-          }
-
-          JTreeLeafDetails leafData = new JTreeLeafDetails(tempBeanCompName,
-            algName, scaledForTree);
-          if (toolTip != null && toolTip.length() > 0) {
-            leafData.setToolTipText(toolTip);
-          }
-          child = new InvisibleNode(leafData);
-          nodeTextIndex.put(algName.toLowerCase() + " "
-            + (toolTip != null ? toolTip.toLowerCase() : ""), child);
+        if (visibleCheck instanceof BeanContextChild) {
+          m_bcSupport.add(visibleCheck);
         }
+        ImageIcon scaledForTree = null;
+        if (visibleCheck instanceof Visible) {
+          BeanVisual bv = ((Visible) visibleCheck).getVisual();
+          if (bv != null) {
+            scaledForTree = new ImageIcon(bv.scale(0.33));
+            // m_iconLookup.put(algName, scaledForTree);
+          }
+        }
+
+        // try and get a tool tip
+        String toolTip = "";
+        try {
+          Object wrappedA = Class.forName(algName).newInstance();
+          toolTip = getGlobalInfo(wrappedA);
+        } catch (Exception ex) {
+        }
+
+        JTreeLeafDetails leafData = new JTreeLeafDetails(tempBeanCompName,
+          algName, scaledForTree);
+        if (toolTip != null && toolTip.length() > 0) {
+          leafData.setToolTipText(toolTip);
+        }
+        child = new InvisibleNode(leafData);
+        nodeTextIndex.put(algName.toLowerCase() + " "
+          + (toolTip != null ? toolTip.toLowerCase() : ""), child);
       } else {
         child = new InvisibleNode(element);
       }
-
-      if (child != null) {
-        parentNode.add(child);
-      }
+      parentNode.add(child);
 
       processPackage(tempBeanCompName, hpp, child, nodeTextIndex);
     }
@@ -4327,9 +4488,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
         // end modifications by Zerbetto
       } catch (Exception ex) {
-        weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-          "[KnowledgeFlow] Failed to instantiate :"
-            + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
+        System.err.println("[KnowledgeFlow] Failed to instantiate :"
+          + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
         return null;
       }
       if (tempBean instanceof WekaWrapper) {
@@ -4337,26 +4497,17 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         Class<?> c = null;
         try {
           c = Class.forName(algName);
-
-          // check for ignore
-          for (Annotation a : c.getAnnotations()) {
-            if (a instanceof KFIgnore) {
-              return null;
-            }
-          }
         } catch (Exception ex) {
-          weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-            "[KnowledgeFlow] Can't find class called: "
-              + algName);
+          System.err.println("[KnowledgeFlow] Can't find class called: "
+            + algName);
           return null;
         }
         try {
           Object o = c.newInstance();
           ((WekaWrapper) tempBean).setWrappedAlgorithm(o);
         } catch (Exception ex) {
-          weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-            "[KnowledgeFlow] Failed to configure "
-              + tempBeanCompName + " with " + algName);
+          System.err.println("[KnowledgeFlow] Failed to configure "
+            + tempBeanCompName + " with " + algName);
           return null;
         }
       }
@@ -4370,9 +4521,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // end modifications
       } catch (Exception ex) {
         ex.printStackTrace();
-        weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-          "[KnowledgeFlow] Failed to instantiate :"
-            + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
+        System.err.println("[KnowledgeFlow] Failed to instantiate :"
+          + tempBeanCompName + "KnowledgeFlowApp.instantiateBean()");
         return null;
       }
     }
@@ -4681,8 +4831,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
       final Vector<Object> tempAssociatedBeans = associatedBeans;
 
       if (compInfo == null) {
-        weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-          "[KnowledgeFlow] Error in doPopup()");
+        System.err.println("[KnowledgeFlow] Error in doPopup()");
       } else {
         // System.err.println("Got bean info");
         for (int zz = 0; zz < compInfo.size(); zz++) {
@@ -4747,8 +4896,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             beanContextMenu.add(custItem);
             menuItemCount++;
           } else {
-            weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO,
-              "[KnowledgeFlow] No customizer class");
+            System.err.println("[KnowledgeFlow] No customizer class");
           }
         }
 
@@ -4757,9 +4905,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         // for (int i = 0; i < compInfoOutputs.size(); i++) {
         for (int i = 0; i < compInfo.size(); i++) {
           EventSetDescriptor[] temp =
-            // ((BeanInfo)
-            // compInfoOutputs.elementAt(i)).getEventSetDescriptors();
-            compInfo.elementAt(i).getEventSetDescriptors();
+          // ((BeanInfo) compInfoOutputs.elementAt(i)).getEventSetDescriptors();
+          compInfo.elementAt(i).getEventSetDescriptors();
 
           if ((temp != null) && (temp.length > 0)) {
             esdV.add(temp);
@@ -4882,9 +5029,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     // Send to perspective menu item?
     if (bc instanceof weka.gui.beans.Loader && m_perspectives.size() > 1
       && m_perspectiveDataLoadThread == null) {
-      final weka.core.converters.Loader theLoader =
-        ((weka.gui.beans.Loader) bc)
-          .getLoader();
+      final weka.core.converters.Loader theLoader = ((weka.gui.beans.Loader) bc)
+        .getLoader();
 
       boolean ok = true;
       if (theLoader instanceof FileSourcedConverter) {
@@ -5011,10 +5157,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
               }
             }
           } catch (Exception ex) {
-            weka.core.logging.Logger.log(
-              weka.core.logging.Logger.Level.WARNING,
-              "[KnowledgeFlow] problem loading data for "
-                + "perspective(s) : " + ex.getMessage());
+            System.err.println("[KnowledgeFlow] problem loading data for "
+              + "perspective(s) : " + ex.getMessage());
             ex.printStackTrace();
           } finally {
             // re-enable all the perspective buttons
@@ -5773,9 +5917,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
     Vector<Object> beanInstances = BeanInstance
       .getBeanInstances(m_mainKFPerspective.getCurrentTabIndex());
     for (int i = 0; i < beanInstances.size(); i++) {
-      JComponent bean =
-        (JComponent) ((BeanInstance) beanInstances.elementAt(i))
-          .getBean();
+      JComponent bean = (JComponent) ((BeanInstance) beanInstances.elementAt(i))
+        .getBean();
       boolean connectable = false;
       boolean canContinue = false;
       if (bean != source) {
@@ -5795,7 +5938,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           // give this bean a chance to veto any proposed connection via
           // the listener interface
           if (((BeanCommon) bean).
-            // connectionAllowed(esd.getName())) {
+          // connectionAllowed(esd.getName())) {
             connectionAllowed(esd)) {
             connectable = true;
           }
@@ -6030,9 +6173,9 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
           group.setCustomName(name);
         }
 
-        // if (group instanceof BeanContextChild) {
-        // m_bcSupport.add(group);
-        // }
+        if (group instanceof BeanContextChild) {
+          m_bcSupport.add(group);
+        }
 
         // int bx = (int)r.getCenterX() -
         // group.getVisual().m_icon.getIconWidth();
@@ -6733,8 +6876,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         ois.close();
         // }
       } catch (Exception ex) {
-        weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-          "[KnowledgeFlow] Problem reading user components.");
+        System.err.println("[KnowledgeFlow] Problem reading user components.");
         ex.printStackTrace();
         return;
       }
@@ -6773,17 +6915,14 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         @Override
         public void windowClosing(java.awt.event.WindowEvent e) {
 
-          weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO,
-            "[KnowledgeFlow] Saving user components....");
+          System.out.println("[KnowledgeFlow] Saving user components....");
           File sFile = new File(WekaPackageManager.WEKA_HOME.getPath()
             + File.separator + "knowledgeFlow");
 
           if (!sFile.exists()) {
             if (!sFile.mkdir()) {
-              weka.core.logging.Logger.log(
-                weka.core.logging.Logger.Level.WARNING,
-                "[KnowledgeFlow] Unable to create \""
-                  + sFile.getPath() + "\" directory");
+              System.err.println("[KnowledgeFlow] Unable to create \""
+                + sFile.getPath() + "\" directory");
             }
           }
           try {
@@ -6808,15 +6947,13 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             oos.close();
             // }
           } catch (Exception ex) {
-            weka.core.logging.Logger.log(
-              weka.core.logging.Logger.Level.WARNING,
-              "[KnowledgeFlow] Unable to save user components");
+            System.err
+              .println("[KnowledgeFlow] Unable to save user components");
             ex.printStackTrace();
           }
 
           // if (VISIBLE_PERSPECTIVES.size() > 0) {
-          weka.core.logging.Logger.log(weka.core.logging.Logger.Level.INFO,
-            "Saving preferences for selected perspectives...");
+          System.out.println("Saving preferences for selected perspectives...");
           sFile = new File(weka.core.WekaPackageManager.PROPERTIES_DIR
             .toString() + File.separator + "VisiblePerspectives.props");
           try {
@@ -6837,9 +6974,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
             f.write("\n");
             f.close();
           } catch (Exception ex) {
-            weka.core.logging.Logger.log(
-              weka.core.logging.Logger.Level.WARNING,
-              "[KnowledgeFlow] Unable to save user perspectives preferences");
+            System.err
+              .println("[KnowledgeFlow] Unable to save user perspectives preferences");
             ex.printStackTrace();
           }
           // }
@@ -6871,8 +7007,7 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
 
   // list of things to be notified when the startup process of
   // the KnowledgeFlow is complete
-  public static Vector<StartUpListener> s_startupListeners =
-    new Vector<StartUpListener>();
+  public static Vector<StartUpListener> s_startupListeners = new Vector<StartUpListener>();
 
   // modifications by Zerbetto
   // If showFileMenu is true, the file menu (open file, new file, save file
@@ -6967,9 +7102,8 @@ public class KnowledgeFlowApp extends JPanel implements PropertyChangeListener,
         }
       }
     } else {
-      weka.core.logging.Logger.log(weka.core.logging.Logger.Level.WARNING,
-        "[KnowledgeFlow] File '" + fileName
-          + "' does not exists.");
+      System.err.println("[KnowledgeFlow] File '" + fileName
+        + "' does not exists.");
     }
 
     loadLayout(oFile, true);

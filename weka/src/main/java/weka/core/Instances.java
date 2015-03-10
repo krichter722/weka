@@ -28,10 +28,8 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import weka.core.converters.ArffLoader.ArffReader;
@@ -74,7 +72,7 @@ import weka.core.converters.ConverterUtils.DataSource;
  * @version $Revision$
  */
 public class Instances extends AbstractList<Instance> implements Serializable,
-RevisionHandler {
+  RevisionHandler {
 
   /** for serialization */
   static final long serialVersionUID = -19412345060742748L;
@@ -104,9 +102,6 @@ RevisionHandler {
    * m_Attributes.get(i) != null);
    */
 
-  /** A map to quickly find attribute indices based on their names. */
-  protected HashMap<String, Integer> m_NamesToAttributeIndices;
-
   /** The instances. */
   protected/* @spec_public non_null@ */ArrayList<Instance> m_Instances;
 
@@ -131,13 +126,10 @@ RevisionHandler {
    * @throws IOException if the ARFF file is not read successfully
    */
   public Instances(/* @non_null@ */Reader reader) throws IOException {
-    ArffReader arff = new ArffReader(reader, 1000, false);
-    initialize(arff.getData(), 1000);
-    arff.setRetainStringValues(true);
-    Instance inst;
-    while ((inst = arff.readInstance(this)) != null) {
-      m_Instances.add(inst);
-    }
+    ArffReader arff = new ArffReader(reader);
+    Instances dataset = arff.getData();
+    initialize(dataset, dataset.numInstances());
+    dataset.copyInstances(0, this, dataset.numInstances());
     compactify();
   }
 
@@ -211,7 +203,6 @@ RevisionHandler {
     m_ClassIndex = dataset.m_ClassIndex;
     m_RelationName = dataset.m_RelationName;
     m_Attributes = dataset.m_Attributes;
-    m_NamesToAttributeIndices = dataset.m_NamesToAttributeIndices;
     m_Instances = new ArrayList<Instance>(capacity);
   }
 
@@ -249,7 +240,7 @@ RevisionHandler {
    * @throws IllegalArgumentException if attribute names are not unique
    */
   public Instances(/* @non_null@ */String name,
-    /* @non_null@ */ArrayList<Attribute> attInfo, int capacity) {
+  /* @non_null@ */ArrayList<Attribute> attInfo, int capacity) {
 
     // check whether the attribute names are unique
     HashSet<String> names = new HashSet<String>();
@@ -269,10 +260,8 @@ RevisionHandler {
     m_RelationName = name;
     m_ClassIndex = -1;
     m_Attributes = attInfo;
-    m_NamesToAttributeIndices = new HashMap<String, Integer>((int) (numAttributes() / 0.75));
     for (int i = 0; i < numAttributes(); i++) {
       attribute(i).setIndex(i);
-      m_NamesToAttributeIndices.put(attribute(i).name(), i);
     }
     m_Instances = new ArrayList<Instance>(capacity);
   }
@@ -292,7 +281,7 @@ RevisionHandler {
         newAtts.add(new Attribute(att.name(), (List<String>) null, att.index()));
       } else if (att.type() == Attribute.RELATIONAL) {
         newAtts.add(new Attribute(att.name(), new Instances(att.relation(), 0),
-          att.index()));
+                                  att.index()));
       }
     }
     if (newAtts.size() == 0) {
@@ -372,11 +361,11 @@ RevisionHandler {
    */
   public/* @pure@ */Attribute attribute(String name) {
 
-    Integer index = m_NamesToAttributeIndices.get(name);
-    if (index != null) {
-      return attribute(index);
+    for (int i = 0; i < numAttributes(); i++) {
+      if (attribute(i).name().equals(name)) {
+        return attribute(i);
+      }
     }
-
     return null;
   }
 
@@ -511,20 +500,13 @@ RevisionHandler {
     }
 
     ArrayList<Attribute> newList = new ArrayList<Attribute>(m_Attributes.size() - 1);
-    HashMap<String, Integer> newMap = new HashMap<String, Integer>((int) ((m_Attributes.size() - 1) / 0.75));
-    for (int i = 0 ; i < position; i++) {
-      Attribute att = m_Attributes.get(i);
-      newList.add(att);
-      newMap.put(att.name(), i);
-    }
+    newList.addAll(m_Attributes.subList(0, position));
     for (int i = position + 1; i < m_Attributes.size(); i++) {
       Attribute newAtt = (Attribute) m_Attributes.get(i).copy();
       newAtt.setIndex(i - 1);
       newList.add(newAtt);
-      newMap.put(newAtt.name(), i - 1);
     }
     m_Attributes = newList;
-    m_NamesToAttributeIndices = newMap;
 
     if (m_ClassIndex > position) {
       m_ClassIndex--;
@@ -727,22 +709,14 @@ RevisionHandler {
     att.setIndex(position);
 
     ArrayList<Attribute> newList = new ArrayList<Attribute>(m_Attributes.size() + 1);
-    HashMap<String, Integer> newMap = new HashMap<String, Integer>((int) ((m_Attributes.size() + 1) / 0.75));
-    for (int i = 0 ; i < position; i++) {
-      Attribute oldAtt = m_Attributes.get(i);
-      newList.add(oldAtt);
-      newMap.put(oldAtt.name(), i);
-    }
+    newList.addAll(m_Attributes.subList(0, position));
     newList.add(att);
-    newMap.put(att.name(), position);
     for (int i = position; i < m_Attributes.size(); i++) {
       Attribute newAtt = (Attribute) m_Attributes.get(i).copy();
       newAtt.setIndex(i + 1);
       newList.add(newAtt);
-      newMap.put(newAtt.name(), i + 1);
     }
     m_Attributes = newList;
-    m_NamesToAttributeIndices = newMap;
 
     for (int i = 0; i < numInstances(); i++) {
       instance(i).setDataset(null);
@@ -921,7 +895,8 @@ RevisionHandler {
   }
 
   /**
-   * Returns the number of distinct values of a given attribute. The value
+   * Returns the number of distinct values of a given attribute. Returns the
+   * number of instances if the attribute is a string attribute. The value
    * 'missing' is not counted.
    * 
    * @param attIndex the attribute (index starts with 0)
@@ -931,18 +906,30 @@ RevisionHandler {
   // @ requires attIndex < numAttributes();
   public/* @pure@ */int numDistinctValues(int attIndex) {
 
-    HashSet<Double> set = new HashSet<Double>(2 * numInstances());
-    for (Instance current : this) {
-      double key = current.value(attIndex);
-      if (!Utils.isMissingValue(key)) {
-        set.add(key);
+    if (attribute(attIndex).isNumeric()) {
+      double[] attVals = attributeToDoubleArray(attIndex);
+      int[] sorted = Utils.sort(attVals);
+      double prev = 0;
+      int counter = 0;
+      for (int i = 0; i < sorted.length; i++) {
+        Instance current = instance(sorted[i]);
+        if (current.isMissing(attIndex)) {
+          break;
+        }
+        if ((i == 0) || (current.value(attIndex) > prev)) {
+          prev = current.value(attIndex);
+          counter++;
+        }
       }
+      return counter;
+    } else {
+      return attribute(attIndex).numValues();
     }
-    return set.size();
   }
 
   /**
-   * Returns the number of distinct values of a given attribute. The value
+   * Returns the number of distinct values of a given attribute. Returns the
+   * number of instances if the attribute is a string attribute. The value
    * 'missing' is not counted.
    * 
    * @param att the attribute
@@ -1036,7 +1023,7 @@ RevisionHandler {
     if ((position < 0) || (position > m_Attributes.size())) {
       throw new IllegalArgumentException("Index out of range");
     }
-
+    
     // Does the new attribute have a different name?
     if (!att.name().equals(m_Attributes.get(position).name())) {
 
@@ -1044,29 +1031,18 @@ RevisionHandler {
       Attribute candidate = attribute(att.name());
       if ((candidate != null) && (position != candidate.index())) {
         throw new IllegalArgumentException("Attribute name '" + att.name()
-          + "' already in use at position #" + 
-          attribute(att.name()).index());
+                                           + "' already in use at position #" + 
+                                           attribute(att.name()).index());
       }
     }
     att = (Attribute) att.copy();
     att.setIndex(position);
 
     ArrayList<Attribute> newList = new ArrayList<Attribute>(m_Attributes.size());
-    HashMap<String, Integer> newMap = new HashMap<String, Integer>((int) ((m_Attributes.size() + 1) / 0.75));
-    for (int i = 0 ; i < position; i++) {
-      Attribute oldAtt = m_Attributes.get(i);
-      newList.add(oldAtt);
-      newMap.put(oldAtt.name(), i);
-    }
+    newList.addAll(m_Attributes.subList(0, position));
     newList.add(att);
-    newMap.put(att.name(), position);
-    for (int i = position + 1; i < m_Attributes.size(); i++) {
-      Attribute newAtt = (Attribute) m_Attributes.get(i);
-      newList.add(newAtt);
-      newMap.put(newAtt.name(), i);
-    }
+    newList.addAll(m_Attributes.subList(position + 1, m_Attributes.size()));
     m_Attributes = newList;
-    m_NamesToAttributeIndices = newMap;
 
     for (int i = 0; i < numInstances(); i++) {
       instance(i).setDataset(null);
@@ -1110,31 +1086,27 @@ RevisionHandler {
    * @param name the new name
    */
   public void renameAttribute(int att, String name) {
-
-    Attribute existingAtt = attribute(name);
-    if (existingAtt != null) {
-      if (att == existingAtt.index()) {
-        return; // Old name is equal to new name
-      } else {
+    // name already present?
+    for (int i = 0; i < numAttributes(); i++) {
+      if (i == att) {
+        continue;
+      }
+      if (attribute(i).name().equals(name)) {
         throw new IllegalArgumentException("Attribute name '" + name
-          + "' already present at position #" + existingAtt.index());
+          + "' already present at position #" + i);
       }
     }
 
     Attribute newAtt = attribute(att).copy(name);
     ArrayList<Attribute> newVec = new ArrayList<Attribute>(numAttributes());
-    HashMap<String, Integer> newMap = new HashMap<String, Integer>((int)(numAttributes() / 0.75));
     for (Attribute attr : m_Attributes) {
       if (attr.index() == att) {
         newVec.add(newAtt);
-        newMap.put(name, att);
       } else {
         newVec.add(attr);
-        newMap.put(attr.name(), attr.index());
       }
     }
     m_Attributes = newVec;
-    m_NamesToAttributeIndices = newMap;
   }
 
   /**
@@ -1480,42 +1452,6 @@ RevisionHandler {
   }
 
   /**
-   * Sorts a nominal attribute (stable, linear-time sort). Instances
-   * are sorted based on the attribute label ordering specified in the header.  
-   * 
-   * @param attIndex the attribute's index (index starts with 0)
-   */
-  protected void sortBasedOnNominalAttribute(int attIndex) {
-
-    // Figure out number of instances for each attribute value
-    // and store original list of instances away
-    int[] counts = new int[attribute(attIndex).numValues()];
-    Instance[] backup = new Instance[numInstances()];
-    int j = 0;
-    for (Instance inst : this) {
-      backup[j++] = inst;
-      if (!inst.isMissing(attIndex)) {
-        counts[(int)inst.value(attIndex)]++;
-      }
-    }
-
-    // Indices to figure out where to add instances
-    int[] indices = new int[counts.length];
-    int start = 0;
-    for (int i = 0; i < counts.length; i++) {
-      indices[i] = start;
-      start += counts[i];
-    }
-    for (Instance inst : backup) { // Use backup here
-      if (!inst.isMissing(attIndex)) {
-        m_Instances.set(indices[(int)inst.value(attIndex)]++, inst);
-      } else {
-        m_Instances.set(start++, inst);
-      }
-    }
-  }
-
-  /**
    * Sorts the instances based on an attribute. For numeric attributes,
    * instances are sorted in ascending order. For nominal attributes, instances
    * are sorted based on the attribute label ordering specified in the header.
@@ -1526,28 +1462,22 @@ RevisionHandler {
    */
   public void sort(int attIndex) {
 
-    if (!attribute(attIndex).isNominal()) {
-
-      // Use quicksort from Utils class for sorting
-      double[] vals = new double[numInstances()];
-      Instance[] backup = new Instance[vals.length];
-      for (int i = 0; i < vals.length; i++) {
-        Instance inst = instance(i);
-        backup[i] = inst;
-        double val = inst.value(attIndex);
-        if (Utils.isMissingValue(val)) {
-          vals[i] = Double.MAX_VALUE;
-        } else {
-          vals[i] = val;
-        }
+    double[] vals = new double[numInstances()];
+    Instance[] backup = new Instance[vals.length];
+    for (int i = 0; i < vals.length; i++) {
+      Instance inst = instance(i);
+      backup[i] = inst;
+      double val = inst.value(attIndex);
+      if (Utils.isMissingValue(val)) {
+        vals[i] = Double.MAX_VALUE;
+      } else {
+        vals[i] = val;
       }
+    }
 
-      int[] sortOrder = Utils.sortWithNoMissingValues(vals);
-      for (int i = 0; i < vals.length; i++) {
-        m_Instances.set(i, backup[sortOrder[i]]);
-      }
-    } else {
-      sortBasedOnNominalAttribute(attIndex);
+    int[] sortOrder = Utils.sortWithNoMissingValues(vals);
+    for (int i = 0; i < vals.length; i++) {
+      m_Instances.set(i, backup[sortOrder[i]]);
     }
   }
 
@@ -1563,51 +1493,6 @@ RevisionHandler {
   public void sort(Attribute att) {
 
     sort(att.index());
-  }
-
-  /**
-   * Sorts the instances based on an attribute, using a stable sort. For numeric attributes,
-   * instances are sorted in ascending order. For nominal attributes, instances
-   * are sorted based on the attribute label ordering specified in the header.
-   * Instances with missing values for the attribute are placed at the end of
-   * the dataset.
-   * 
-   * @param attIndex the attribute's index (index starts with 0)
-   */
-  public void stableSort(int attIndex) {
-
-    if (!attribute(attIndex).isNominal()) {
-
-      // Use quicksort from Utils class for sorting
-      double[] vals = new double[numInstances()];
-      Instance[] backup = new Instance[vals.length];
-      for (int i = 0; i < vals.length; i++) {
-        Instance inst = instance(i);
-        backup[i] = inst;
-        vals[i] = inst.value(attIndex);
-      }
-
-      int[] sortOrder = Utils.stableSort(vals);
-      for (int i = 0; i < vals.length; i++) {
-        m_Instances.set(i, backup[sortOrder[i]]);
-      }
-    } else {
-      sortBasedOnNominalAttribute(attIndex);
-    }
-  }
-
-  /**
-   * Sorts the instances based on an attribute, using a stable sort. For numeric attributes,
-   * instances are sorted into ascending order. For nominal attributes,
-   * instances are sorted based on the attribute label ordering specified in the
-   * header. Instances with missing values for the attribute are placed at the
-   * end of the dataset.
-   * 
-   * @param att the attribute
-   */
-  public void stableSort(Attribute att) {
-
-    stableSort(att.index());
   }
 
   /**
@@ -1711,7 +1596,7 @@ RevisionHandler {
     StringBuffer text = new StringBuffer();
 
     text.append(ARFF_RELATION).append(" ").append(Utils.quote(m_RelationName))
-    .append("\n\n");
+      .append("\n\n");
     for (int i = 0; i < numAttributes(); i++) {
       text.append(attribute(i)).append("\n");
     }
@@ -1804,64 +1689,6 @@ RevisionHandler {
   }
 
   /**
-   * Computes the variance for all numeric attributes simultaneously.
-   * This is faster than calling variance() for each attribute.
-   * The resulting array has as many dimensions as there are attributes.
-   * Array elements corresponding to non-numeric attributes are set to 0.
-   * 
-   * @return the array containing the variance values
-   */
-  public/* @pure@ */double[] variances() {
-
-    double[] vars = new double[numAttributes()];
-
-    for (int i = 0; i < numAttributes(); i++)
-      vars[i] = Double.NaN;
-
-    double[] means = new double[numAttributes()];
-    double[] sumWeights = new double[numAttributes()];
-
-    for (int i = 0; i < numInstances(); i++) {
-      double weight = instance(i).weight();
-      for (int attIndex = 0; attIndex < numAttributes(); attIndex++) {
-        if (attribute(attIndex).isNumeric()) {
-          if (!instance(i).isMissing(attIndex)) {
-            double value = instance(i).value(attIndex);
-
-            if (Double.isNaN(vars[attIndex])) {
-              // For the first value the mean can suffer from loss of precision
-              // so we treat it separately and make sure the calculation stays accurate
-              means[attIndex] = value;
-              sumWeights[attIndex] = weight;
-              vars[attIndex] = 0;
-              continue;
-            }
-
-            double delta = weight*(value - means[attIndex]);
-            sumWeights[attIndex] += weight;
-            means[attIndex] += delta/sumWeights[attIndex];
-            vars[attIndex] += delta*(value - means[attIndex]);
-          }
-        }
-      }
-    }
-
-    for (int attIndex = 0; attIndex < numAttributes(); attIndex++) {
-      if (attribute(attIndex).isNumeric()) {
-        if (sumWeights[attIndex] <= 1) {
-          vars[attIndex] = Double.NaN;
-        } else {
-          vars[attIndex] /= sumWeights[attIndex] - 1;
-          if (vars[attIndex] < 0)
-            vars[attIndex] = 0;
-        }
-      }
-    }
-
-    return vars;
-  }
-
-  /**
    * Computes the variance for a numeric attribute.
    * 
    * @param attIndex the numeric attribute (index starts with 0)
@@ -1870,46 +1697,31 @@ RevisionHandler {
    */
   public/* @pure@ */double variance(int attIndex) {
 
+    double sum = 0, sumSquared = 0, sumOfWeights = 0;
+
     if (!attribute(attIndex).isNumeric()) {
       throw new IllegalArgumentException(
         "Can't compute variance because attribute is " + "not numeric!");
     }
-
-    double mean = 0;
-    double var = Double.NaN;
-    double sumWeights = 0;
     for (int i = 0; i < numInstances(); i++) {
       if (!instance(i).isMissing(attIndex)) {
-        double weight = instance(i).weight();
-        double value = instance(i).value(attIndex);
-
-        if (Double.isNaN(var)) {
-          // For the first value the mean can suffer from loss of precision
-          // so we treat it separately and make sure the calculation stays accurate
-          mean = value;
-          sumWeights = weight;
-          var = 0;
-          continue;
-        }
-
-        double delta = weight*(value - mean);
-        sumWeights += weight;
-        mean += delta/sumWeights;
-        var += delta*(value - mean);
+        sum += instance(i).weight() * instance(i).value(attIndex);
+        sumSquared += instance(i).weight() * instance(i).value(attIndex)
+          * instance(i).value(attIndex);
+        sumOfWeights += instance(i).weight();
       }
     }
-
-    if (sumWeights <= 1) {
-      return Double.NaN;
+    if (sumOfWeights <= 1) {
+      return 0;
     }
-
-    var /= sumWeights - 1;
+    double result = (sumSquared - (sum * sum / sumOfWeights))
+      / (sumOfWeights - 1);
 
     // We don't like negative variance
-    if (var < 0) {
+    if (result < 0) {
       return 0;
     } else {
-      return var;
+      return result;
     }
   }
 
@@ -1945,28 +1757,29 @@ RevisionHandler {
     }
     result.totalCount = numInstances();
 
-    HashMap<Double,double[]> map = new HashMap<Double,double[]>(2 * result.totalCount);
-    for (Instance current : this) {
-      double key = current.value(index);
-      if (Utils.isMissingValue(key)) {
-        result.missingCount++;
+    double[] attVals = attributeToDoubleArray(index);
+    int[] sorted = Utils.sort(attVals);
+    int currentCount = 0;
+    double currentWeight = 0;
+    double prev = Double.NaN;
+    for (int j = 0; j < numInstances(); j++) {
+      Instance current = instance(sorted[j]);
+      if (current.isMissing(index)) {
+        result.missingCount = numInstances() - j;
+        break;
+      }
+      if (current.value(index) == prev) {
+        currentCount++;
+        currentWeight += current.weight();
       } else {
-        double[] values = map.get(key);
-        if (values == null) {
-          values = new double[2];
-          values[0] = 1.0;
-          values[1] = current.weight();
-          map.put(key, values);
-        } else {
-          values[0]++;
-          values[1] += current.weight();
-        }
+        result.addDistinct(prev, currentCount, currentWeight);
+        currentCount = 1;
+        currentWeight = current.weight();
+        prev = current.value(index);
       }
     }
-
-    for (Entry<Double, double[]> entry : map.entrySet()) {
-      result.addDistinct(entry.getKey(), (int)entry.getValue()[0], entry.getValue()[1]);
-    }
+    result.addDistinct(prev, currentCount, currentWeight);
+    result.distinctCount--; // So we don't count "missing" as a value
     return result;
   }
 
@@ -2010,14 +1823,10 @@ RevisionHandler {
     result.append(Utils.padLeft("Missing", 12));
     result.append(Utils.padLeft("Unique", 12));
     result.append(Utils.padLeft("Dist", 6)).append('\n');
-
-    // Figure out how many digits we need for the index
-    int numDigits = (int)Math.log10((int)numAttributes()) + 1;
-
     for (int i = 0; i < numAttributes(); i++) {
       Attribute a = attribute(i);
       AttributeStats as = attributeStats(i);
-      result.append(Utils.padLeft("" + (i + 1), numDigits)).append(' ');
+      result.append(Utils.padLeft("" + (i + 1), 4)).append(' ');
       result.append(Utils.padRight(a.name(), 25)).append(' ');
       long percent;
       switch (a.type()) {
@@ -2099,6 +1908,18 @@ RevisionHandler {
   }
 
   /**
+   * Replaces the attribute information by a clone of itself.
+   */
+  protected void freshAttributeInfo() {
+
+    ArrayList<Attribute> newList = new ArrayList<Attribute>(m_Attributes.size());
+    for (Attribute att : m_Attributes) {
+      newList.add((Attribute) att.copy());
+    }
+    m_Attributes = newList;
+  }
+
+  /**
    * Returns string including all instances, their weights and their indices in
    * the original dataset.
    * 
@@ -2172,8 +1993,7 @@ RevisionHandler {
     }
 
     // Create the vector of merged attributes
-    ArrayList<Attribute> newAttributes = new ArrayList<Attribute>(first.numAttributes() +
-      second.numAttributes());
+    ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
     for (Attribute att : first.m_Attributes) {
       newAttributes.add(att);
     }
@@ -2504,28 +2324,28 @@ RevisionHandler {
       // wrong parameters or help
       else {
         System.err
-        .println("\nUsage:\n"
-          // help
-          + "\tweka.core.Instances help\n"
-          + "\t\tPrints this help\n"
-          // stats
-          + "\tweka.core.Instances <filename>\n"
-          + "\t\tOutputs dataset statistics\n"
-          // merge
-          + "\tweka.core.Instances merge <filename1> <filename2>\n"
-          + "\t\tMerges the datasets (must have same number of rows).\n"
-          + "\t\tGenerated dataset gets output on stdout.\n"
-          // append
-          + "\tweka.core.Instances append <filename1> <filename2>\n"
-          + "\t\tAppends the second dataset to the first (must have same number of attributes).\n"
-          + "\t\tGenerated dataset gets output on stdout.\n"
-          // headers
-          + "\tweka.core.Instances headers <filename1> <filename2>\n"
-          + "\t\tCompares the structure of the two datasets and outputs whether they\n"
-          + "\t\tdiffer or not.\n"
-          // randomize
-          + "\tweka.core.Instances randomize <seed> <filename>\n"
-          + "\t\tRandomizes the dataset and outputs it on stdout.\n");
+          .println("\nUsage:\n"
+            // help
+            + "\tweka.core.Instances help\n"
+            + "\t\tPrints this help\n"
+            // stats
+            + "\tweka.core.Instances <filename>\n"
+            + "\t\tOutputs dataset statistics\n"
+            // merge
+            + "\tweka.core.Instances merge <filename1> <filename2>\n"
+            + "\t\tMerges the datasets (must have same number of rows).\n"
+            + "\t\tGenerated dataset gets output on stdout.\n"
+            // append
+            + "\tweka.core.Instances append <filename1> <filename2>\n"
+            + "\t\tAppends the second dataset to the first (must have same number of attributes).\n"
+            + "\t\tGenerated dataset gets output on stdout.\n"
+            // headers
+            + "\tweka.core.Instances headers <filename1> <filename2>\n"
+            + "\t\tCompares the structure of the two datasets and outputs whether they\n"
+            + "\t\tdiffer or not.\n"
+            // randomize
+            + "\tweka.core.Instances randomize <seed> <filename>\n"
+            + "\t\tRandomizes the dataset and outputs it on stdout.\n");
       }
     } catch (Exception ex) {
       ex.printStackTrace();

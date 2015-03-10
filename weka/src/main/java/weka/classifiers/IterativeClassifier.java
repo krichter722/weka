@@ -15,13 +15,13 @@
 
 /*
  *    IterativeClassifier.java
- *    Copyright (C) 2001-2012 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2001  University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.classifiers;
 
-import weka.core.Instances;
+import weka.core.*;
 
 /**
  * Interface for classifiers that can induce models of growing
@@ -32,28 +32,37 @@ import weka.core.Instances;
  * @version $Revision$
  */
 
-public interface IterativeClassifier extends Classifier {
+public interface IterativeClassifier {
 
   /**
-   * Initializes an iterative classifier.
+   * Inits an iterative classifier.
    *
    * @param instances the instances to be used in induction
    * @exception Exception if the model cannot be initialized
    */
-  void initializeClassifier(Instances instances) throws Exception;
+  void initClassifier(Instances instances) throws Exception;
 
   /**
    * Performs one iteration.
-   *
-   * @return false if no further iterations could be performed, true otherwise
-   * @exception Exception if this iteration fails for unexpected reasons
-   */
-  boolean next() throws Exception;
+   * 
+   * @param iteration the index of the current iteration (0-based)
+   * @exception Exception if this iteration fails 
+   */  
+  void next(int iteration) throws Exception;
 
   /**
    * Signal end of iterating, useful for any house-keeping/cleanup
-   *
-   * @exception Exception if cleanup fails
-   */
+   * 
+   * @exception Exception if cleanup fails 
+   */  
   void done() throws Exception;
+
+  /**
+    * Performs a deep copy of the classifier, and a reference copy
+    * of the training instances (or a deep copy if required).
+    *
+    * @return a clone of the classifier
+    */
+  Object clone() throws CloneNotSupportedException;
+
 }

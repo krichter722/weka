@@ -169,6 +169,9 @@ public class Logistic extends AbstractClassifier implements OptionHandler,
   /** The filter used to get rid of missing values. */
   private ReplaceMissingValues m_ReplaceMissingValues;
 
+  /** Debugging output */
+  protected boolean m_Debug;
+
   /** Log-likelihood of the searched model */
   protected double m_LL;
 

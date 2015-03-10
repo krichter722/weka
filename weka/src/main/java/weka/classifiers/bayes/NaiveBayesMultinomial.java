@@ -206,7 +206,7 @@ public class NaiveBayesMultinomial
 	for(int a = 0; a<instance.numValues(); a++)
 	  if(instance.index(a) != instance.classIndex())
 	    {
-	      if(!instance.isMissingSparse(a))
+	      if(!instance.isMissing(a))
 		{
 		  numOccurences = instance.valueSparse(a) * instance.weight();
 		  if(numOccurences < 0)
