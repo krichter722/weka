@@ -171,7 +171,7 @@ public final class Utils implements RevisionHandler {
       }
     }
 
-    return localProps;
+    return new EnvironmentProperties(localProps);
   }
 
   /**
