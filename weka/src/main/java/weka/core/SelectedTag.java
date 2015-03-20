@@ -15,12 +15,13 @@
 
 /*
  *    SelectedTag.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.core;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
 /**
@@ -33,8 +34,10 @@ import java.util.HashSet;
  * @version $Revision$
  */
 public class SelectedTag
-  implements RevisionHandler {
-  
+  implements RevisionHandler, Serializable {
+
+  private static final long serialVersionUID = 6947341624626504975L;
+
   /** The index of the selected tag */
   protected int m_Selected;
   
@@ -54,13 +57,19 @@ public class SelectedTag
     HashSet<Integer> ID = new HashSet<Integer>();
     HashSet<String> IDStr = new HashSet<String>();
     for (int i = 0; i < tags.length; i++) {
-      ID.add(new Integer(tags[i].getID()));
-      IDStr.add(tags[i].getIDStr());
+      Integer newID = new Integer(tags[i].getID());
+      if (!ID.contains(newID)) {
+        ID.add(newID);
+      } else {
+        throw new IllegalArgumentException("The IDs are not unique: " + newID + "!");
+      }
+      String IDstring = tags[i].getIDStr();
+      if (!IDStr.contains(IDstring)) {
+        IDStr.add(IDstring);
+      } else {
+        throw new IllegalArgumentException("The ID strings are not unique: " + IDstring + "!");
+      }
     }
-    if (ID.size() != tags.length)
-      throw new IllegalArgumentException("The IDs are not unique!");
-    if (IDStr.size() != tags.length)
-      throw new IllegalArgumentException("The ID strings are not unique!");
 
     for (int i = 0; i < tags.length; i++) {
       if (tags[i].getID() == tagID) {
