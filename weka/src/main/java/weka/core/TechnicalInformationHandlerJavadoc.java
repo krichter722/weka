@@ -15,7 +15,7 @@
 
 /*
  * TechnicalInformationHandlerJavadoc.java
- * Copyright (C) 2006-2012 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2006-2012,2015 University of Waikato, Hamilton, New Zealand
  */
 
 package weka.core;
@@ -27,10 +27,10 @@ import java.util.Vector;
 /**
  * Generates Javadoc comments from the TechnicalInformationHandler's data.
  * Update the BibTex references and the plaintext techincal information.
- * <p/>
+ * <p>
  * 
  * <!-- options-start --> Valid options are:
- * <p/>
+ * <p>
  * 
  * <pre>
  * -W &lt;classname&gt;
@@ -209,8 +209,8 @@ public class TechnicalInformationHandlerJavadoc extends Javadoc {
       }
       result += "<pre>\n";
       result += toHTML(handler.getTechnicalInformation().toBibTex())
-        .replaceAll("<br/>", "") + "\n";
-      result += "</pre>\n<p/>\n";
+        .replaceAll("<br>", "") + "\n";
+      result += "</pre>\n<p>\n";
       break;
     }
 
