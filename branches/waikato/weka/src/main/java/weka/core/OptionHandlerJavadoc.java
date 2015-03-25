@@ -29,10 +29,10 @@ import java.util.Vector;
  * automatically update the option comments if they're surrounded by the
  * OPTIONS_STARTTAG and OPTIONS_ENDTAG (the indention is determined via the
  * OPTIONS_STARTTAG).
- * <p>
+ * <br>
  * 
  * <!-- options-start --> Valid options are:
- * <p>
+ * <br>
  * 
  * <pre>
  * -W &lt;classname&gt;
@@ -191,7 +191,7 @@ public class OptionHandlerJavadoc extends Javadoc {
 
       // prolog?
       if (getProlog()) {
-        result = "Valid options are: <p>\n\n";
+        result = "Valid options are: <br>\n\n";
       }
 
       // options
