@@ -206,7 +206,7 @@ public class NaiveBayes extends AbstractClassifier implements OptionHandler,
     // attributes
     result.enable(Capability.NOMINAL_ATTRIBUTES);
     result.enable(Capability.NUMERIC_ATTRIBUTES);
-    result.enable(Capability.MISSING_VALUES);
+    result.enable( Capability.MISSING_VALUES );
 
     // class
     result.enable(Capability.NOMINAL_CLASS);
@@ -950,6 +950,33 @@ public class NaiveBayes extends AbstractClassifier implements OptionHandler,
    */
   public boolean getDisplayModelInOldFormat() {
     return m_displayModelInOldFormat;
+  }
+
+  /**
+   * Return the header that this classifier was trained with
+   *
+   * @return the header that this classifier was trained with
+   */
+  public Instances getHeader() {
+    return m_Instances;
+  }
+
+  /**
+   * Get all the conditional estimators.
+   *
+   * @return all the conditional estimators.
+   */
+  public Estimator[][] getConditionalEstimators() {
+    return m_Distributions;
+  }
+
+  /**
+   * Get the class estimator.
+   *
+   * @return the class estimator
+   */
+  public Estimator getClassEstimator() {
+    return m_ClassDistribution;
   }
 
   /**
