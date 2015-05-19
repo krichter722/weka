@@ -1,17 +1,16 @@
 /*
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -94,8 +93,8 @@ implements AttributeTransformer, OptionHandler {
   private Instances m_trainInstances;
   
   /** 
-   * Keep a copy for the class attribute (if set) and for checking
-   * header compatibility 
+   * Keep a copy for the class attribute (if set) and for 
+   * checking for header compatibility 
    */
   private Instances m_trainHeader;
   
@@ -420,16 +419,16 @@ implements AttributeTransformer, OptionHandler {
     Vector attributesToRemove = new Vector();
     
     // if data has a class attribute
-    if (m_trainInstances.classIndex() >= 0) {      
+    if (m_trainInstances.classIndex() >= 0) {
+      
       m_hasClass = true;
       m_classIndex = m_trainInstances.classIndex();
       
       // set class attribute to be removed
       attributesToRemove.addElement(new Integer(m_classIndex));
     }
-    
     // make copy of training data so the class values (if set) can be appended to final 
-    // transformed instances and we can check header compatibility
+    // transformed instances and so that we can check header compatibility
     m_trainHeader = new Instances(m_trainInstances, 0);
     
     // normalize data if desired
@@ -489,8 +488,11 @@ implements AttributeTransformer, OptionHandler {
     
     // find actual rank to use
     int maxSingularValues = trainSVD.rank();
-    for (int i = 0; i < m_s.getRowDimension(); i++) {
-      m_sumSquaredSingularValues += m_s.get(i, i) * m_s.get(i, i);
+    double[] singularDiag = trainSVD.getSingularValues();
+    //    for (int i = 0; i < m_s.getRowDimension(); i++) {
+    for (int i = 0; i < singularDiag.length; i++) {
+      // m_sumSquaredSingularValues += m_s.get(i, i) * m_s.get(i, i);
+      m_sumSquaredSingularValues += singularDiag[i] * singularDiag[i];
     }
     if (maxSingularValues == 0) { // no nonzero singular values (shouldn't happen)
       // reset values from computation
@@ -505,8 +507,10 @@ implements AttributeTransformer, OptionHandler {
       m_actualRank = maxSingularValues;
     } else if (m_rank < 1.0) { // determine how many singular values to include for desired coverage
       double currentSumOfSquaredSingularValues = 0.0;
-      for (int i = 0; i < m_s.getRowDimension() && m_actualRank == -1; i++) {
-        currentSumOfSquaredSingularValues += m_s.get(i, i) * m_s.get(i, i);
+      //for (int i = 0; i < m_s.getRowDimension() && m_actualRank == -1; i++) {
+      for (int i = 0; i < singularDiag.length && m_actualRank == -1; i++) {
+        //currentSumOfSquaredSingularValues += m_s.get(i, i) * m_s.get(i, i);
+        currentSumOfSquaredSingularValues += singularDiag[i] * singularDiag[i];
         if (currentSumOfSquaredSingularValues / m_sumSquaredSingularValues >= m_rank) {
           m_actualRank = i + 1;
         }
