@@ -1110,7 +1110,6 @@ public class CfsSubsetEval
     int j = 0;
 
     if (!m_locallyPredictive) {
-      m_trainInstances = new Instances(m_trainInstances, 0);
       return attributeSet;
     }
 
@@ -1138,9 +1137,17 @@ public class CfsSubsetEval
       }
     }
 
-    m_trainInstances = new Instances(m_trainInstances, 0);
     return newSet;
   }
+
+  @Override
+  public void clean() {
+    if (m_trainInstances != null) {
+      // save memory
+      m_trainInstances = new Instances(m_trainInstances, 0);
+    }
+  }
+
 
   protected void resetOptions() {
     m_trainInstances = null;
