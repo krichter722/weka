@@ -679,12 +679,10 @@ public class WrapperSubsetEval
   }
   
   @Override
-  public int[] postProcess(int[] attributeSet) {
+  public void clean() {
 
     // save memory
     m_trainInstances = new Instances(m_trainInstances, 0);
-
-    return attributeSet;
   }
 
 

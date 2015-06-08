@@ -785,6 +785,7 @@ public class AttributeSelection
 
     // Save space
     m_trainInstances = new Instances(m_trainInstances, 0);
+    m_ASEvaluator.clean();
   }
 
   /**
