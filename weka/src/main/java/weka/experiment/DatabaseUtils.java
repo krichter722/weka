@@ -42,6 +42,7 @@ import java.util.Vector;
 import weka.core.RevisionHandler;
 import weka.core.RevisionUtils;
 import weka.core.Utils;
+import weka.core.logging.Logger;
 
 /**
  * DatabaseUtils provides utility functions for accessing the experiment
@@ -115,6 +116,8 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
   public static final int TEXT = 9;
   /** Type mapping for TIME used for reading TIME columns. */
   public static final int TIME = 10;
+  /** Type mapping for TIMESTAMP used for reading java.sql.Timestamp columns */
+  public static final int TIMESTAMP = 11;
 
   /** Database URL. */
   protected String m_DatabaseURL;
@@ -237,7 +240,11 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
         } catch (Exception e) {
           result = false;
         }
-        if (m_Debug || (!result && !DRIVERS_ERRORS.contains(driver))) {
+        if (!result && !DRIVERS_ERRORS.contains(driver)) {
+          Logger.log(Logger.Level.WARNING,
+            "Trying to add database driver (JDBC): " + driver + " - "
+              + "Warning, not in CLASSPATH?");
+        } else if (m_Debug) {
           System.err.println("Trying to add database driver (JDBC): " + driver
             + " - " + (result ? "Success!" : "Warning, not in CLASSPATH?"));
         }
@@ -328,6 +335,7 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
       }
       return Integer.parseInt(value);
     } catch (NumberFormatException e) {
+      e.printStackTrace();
       throw new IllegalArgumentException("Unknown data type: " + type + ". "
         + "Add entry in " + PROPERTY_FILE + ".\n"
         + "If the type contains blanks, either escape them with a backslash "
