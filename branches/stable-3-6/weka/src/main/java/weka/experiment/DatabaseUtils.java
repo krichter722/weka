@@ -114,6 +114,8 @@ public class DatabaseUtils implements Serializable, RevisionHandler {
   public static final int TEXT = 9;
   /** Type mapping for TIME used for reading TIME columns. */
   public static final int TIME = 10;
+  /** Type mapping for TIMESTAMP used for reading java.sql.Timestamp columns */
+  public static final int TIMESTAMP = 11;
 
   /** Database URL. */
   protected String m_DatabaseURL;
