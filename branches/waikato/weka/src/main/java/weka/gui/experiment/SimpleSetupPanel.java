@@ -15,14 +15,13 @@
 
 /*
  *    SimpleSetupPanel.java
- *    Copyright (C) 2002 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2002-2015 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.gui.experiment;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.AbstractClassifier;
 import weka.core.xml.KOML;
 import weka.experiment.CSVResultListener;
 import weka.experiment.ClassifierSplitEvaluator;
@@ -37,6 +36,22 @@ import weka.experiment.SplitEvaluator;
 import weka.gui.DatabaseConnectionDialog;
 import weka.gui.ExtensionFileFilter;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -56,23 +71,6 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
-
 /** 
  * This panel controls the configuration of an experiment.
   * <p>
@@ -85,7 +83,7 @@ import javax.swing.filechooser.FileFilter;
  * @version $Revision$
  */
 public class SimpleSetupPanel
-  extends JPanel {
+  extends AbstractSetupPanel {
 
   /** for serialization */
   private static final long serialVersionUID = 5257424515609176509L;
@@ -569,7 +567,16 @@ public class SimpleSetupPanel
     add(schemes, BorderLayout.CENTER);
     add(notes, BorderLayout.SOUTH);
   }
-  
+
+  /**
+   * Returns the name of the panel.
+   *
+   * @return		the name
+   */
+  public String getName() {
+    return "Simple";
+  }
+
   /**
    * Sets the selected item of an combobox, since using setSelectedItem(...)
    * doesn't work, if one checks object references!
@@ -1213,5 +1220,12 @@ public class SimpleSetupPanel
       return;
     }
     m_ResultsDestinationPathTField.setText(m_DestFileChooser.getSelectedFile().toString());
+  }
+
+  /**
+   * Hook method for cleaning up the interface after a switch.
+   */
+  public void cleanUpAfterSwitch() {
+    removeNotesFrame();
   }
 }
