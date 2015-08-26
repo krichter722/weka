@@ -103,6 +103,7 @@ import weka.core.Range;
 import weka.core.SerializedObject;
 import weka.core.Utils;
 import weka.core.Version;
+import weka.core.converters.ArffLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.core.converters.IncrementalConverter;
 import weka.core.converters.Loader;
@@ -1170,6 +1171,10 @@ public class ClassifierPanel extends JPanel implements
 
           try {
             if (m_TestLoader != null && m_TestLoader.getStructure() != null) {
+              if (m_TestLoader instanceof ArffLoader
+                && m_ClassifierEditor.getValue() instanceof BatchPredictor) {
+                ((ArffLoader) m_TestLoader).setRetainStringVals(true);
+              }
               m_TestLoader.reset();
               source = new DataSource(m_TestLoader);
               userTestStructure = source.getStructure();
@@ -2754,6 +2759,10 @@ public class ClassifierPanel extends JPanel implements
             boolean incrementalLoader =
               (m_TestLoader instanceof IncrementalConverter);
             if (m_TestLoader != null && m_TestLoader.getStructure() != null) {
+              if (m_TestLoader instanceof ArffLoader
+                && classifierToUse instanceof BatchPredictor) {
+                ((ArffLoader) m_TestLoader).setRetainStringVals(true);
+              }
               m_TestLoader.reset();
               source = new DataSource(m_TestLoader);
               userTestStructure = source.getStructure();
