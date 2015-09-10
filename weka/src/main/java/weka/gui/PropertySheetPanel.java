@@ -1,21 +1,22 @@
 /*
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
  *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program; if not, write to the Free Software
+ *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 /*
  *    PropertySheet.java
- *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -46,14 +47,9 @@ import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.beans.PropertyVetoException;
-import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -67,9 +63,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
-import weka.core.*;
-import weka.core.Capabilities.Capability;
-import weka.gui.beans.GOECustomizer;
+import weka.core.Capabilities;
+import weka.core.CapabilitiesHandler;
+import weka.core.MultiInstanceCapabilitiesHandler;
 
 /**
  * Displays a property sheet where (supported) properties of the target object
@@ -79,7 +75,7 @@ import weka.gui.beans.GOECustomizer;
  * @version $Revision$
  */
 public class PropertySheetPanel extends JPanel implements
-  PropertyChangeListener, EnvironmentHandler {
+  PropertyChangeListener {
 
   /** for serialization. */
   private static final long serialVersionUID = -8939835593429918345L;
@@ -98,7 +94,7 @@ public class PropertySheetPanel extends JPanel implements
 
     /**
      * default constructor.
-     *
+     * 
      * @param owner the owning frame
      */
     public CapabilitiesHelpDialog(Frame owner) {
@@ -109,7 +105,7 @@ public class PropertySheetPanel extends JPanel implements
 
     /**
      * default constructor.
-     *
+     * 
      * @param owner the owning dialog
      */
     public CapabilitiesHelpDialog(Dialog owner) {
@@ -122,7 +118,8 @@ public class PropertySheetPanel extends JPanel implements
      * Initializes the dialog.
      */
     protected void initialize() {
-      setTitle("Information about Capabilities");
+      setTitle(Messages.getInstance().getString(
+        "PropertySheetPanel_CapabilitiesHelpDialog_Initialize_SetTitle_Text"));
 
       m_Self = this;
 
@@ -170,7 +167,7 @@ public class PropertySheetPanel extends JPanel implements
 
     /**
      * This method gets called when a bound property is changed.
-     *
+     * 
      * @param evt the change event
      */
     @Override
@@ -181,13 +178,13 @@ public class PropertySheetPanel extends JPanel implements
 
   /**
    * returns a comma-separated list of all the capabilities.
-   *
+   * 
    * @param c the capabilities to get a string representation from
    * @return the string describing the capabilities
    */
   public static String listCapabilities(Capabilities c) {
     String result;
-    Iterator<Capability> iter;
+    Iterator iter;
 
     result = "";
     iter = c.capabilities();
@@ -204,7 +201,7 @@ public class PropertySheetPanel extends JPanel implements
   /**
    * generates a string from the capapbilities, suitable to add to the help
    * text.
-   *
+   * 
    * @param title the title for the capabilities
    * @param c the capabilities
    * @return a string describing the capabilities
@@ -218,30 +215,55 @@ public class PropertySheetPanel extends JPanel implements
     // class
     caps = listCapabilities(c.getClassCapabilities());
     if (caps.length() != 0) {
-      result += "Class -- ";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_First");
       result += caps;
-      result += "\n\n";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Second");
     }
 
     // attribute
     caps = listCapabilities(c.getAttributeCapabilities());
     if (caps.length() != 0) {
-      result += "Attributes -- ";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Third");
       result += caps;
-      result += "\n\n";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Fourth");
     }
 
     // other capabilities
     caps = listCapabilities(c.getOtherCapabilities());
     if (caps.length() != 0) {
-      result += "Other -- ";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Fifth");
       result += caps;
-      result += "\n\n";
+      result += Messages
+        .getInstance()
+        .getString(
+          "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Sixth");
     }
 
     // additional stuff
-    result += "Additional\n";
-    result += "min # of instances: " + c.getMinimumNumberInstances() + "\n";
+    result += Messages
+      .getInstance()
+      .getString(
+        "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Seventh");
+    result += Messages
+      .getInstance()
+      .getString(
+        "PropertySheetPanel_CapabilitiesHelpDialog_AddCapabilities_SetTitle_Text_Eighth")
+      + c.getMinimumNumberInstances() + "\n";
     result += "\n";
 
     return result;
@@ -249,12 +271,6 @@ public class PropertySheetPanel extends JPanel implements
 
   /** The target object being edited. */
   private Object m_Target;
-
-  /** Whether to show the about panel */
-  private boolean m_showAboutPanel = true;
-
-  /** Holds the customizer (if one exists) for the object being edited */
-  private GOECustomizer m_Customizer;
 
   /** Holds properties of the target. */
   private PropertyDescriptor m_Properties[];
@@ -304,59 +320,20 @@ public class PropertySheetPanel extends JPanel implements
    */
   private JPanel m_aboutPanel;
 
-  /** Environment variables to pass on to any editors that can handle them */
-  private transient Environment m_env;
-
   /**
-   * Whether to use EnvironmentField and FileEnvironmentField for text and
-   * file properties respectively */
-  private boolean m_useEnvironmentPropertyEditors;
-
-  /**
-   * Creates the property sheet panel with an about panel.
+   * Creates the property sheet panel.
    */
   public PropertySheetPanel() {
 
     // setBorder(BorderFactory.createLineBorder(Color.red));
     setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-    m_env = Environment.getSystemWide();
-  }
-
-  /**
-   * Creates the property sheet panel
-   *
-   * @param showAboutPanel true if the about panel is to be shown
-   */
-  public PropertySheetPanel(boolean showAboutPanel) {
-    super();
-    m_showAboutPanel = showAboutPanel;
-  }
-
-  /**
-   * Set whether to use environment property editors for string and
-   * file properties
-   *
-   * @param u true to use environment property editors
-   */
-  public void setUseEnvironmentPropertyEditors(boolean u) {
-    m_useEnvironmentPropertyEditors = u;
-  }
-
-  /**
-   * Get whether to use environment property editors for string and
-   * file properties
-   *
-   * @return true to use environment property editors
-   */
-  public boolean getUseEnvironmentPropertyEditors() {
-    return m_useEnvironmentPropertyEditors;
   }
 
   /**
    * Return the panel containing global info and help for the object being
    * edited. May return null if the edited object provides no global info or tip
    * text.
-   *
+   * 
    * @return the about panel.
    */
   public JPanel getAboutPanel() {
@@ -369,7 +346,7 @@ public class PropertySheetPanel extends JPanel implements
   /**
    * Updates the property sheet panel with a changed property and also passed
    * the event along.
-   *
+   * 
    * @param evt a value of type 'PropertyChangeEvent'
    */
   @Override
@@ -380,7 +357,7 @@ public class PropertySheetPanel extends JPanel implements
 
   /**
    * Adds a PropertyChangeListener.
-   *
+   * 
    * @param l a value of type 'PropertyChangeListener'
    */
   @Override
@@ -390,7 +367,7 @@ public class PropertySheetPanel extends JPanel implements
 
   /**
    * Removes a PropertyChangeListener.
-   *
+   * 
    * @param l a value of type 'PropertyChangeListener'
    */
   @Override
@@ -400,14 +377,10 @@ public class PropertySheetPanel extends JPanel implements
 
   /**
    * Sets a new target object for customisation.
-   *
+   * 
    * @param targ a value of type 'Object'
    */
   public synchronized void setTarget(Object targ) {
-
-    if (m_env == null) {
-      m_env = Environment.getSystemWide();
-    }
 
     // used to offset the components for the properties of targ
     // if there happens to be globalInfo available in targ
@@ -428,15 +401,13 @@ public class PropertySheetPanel extends JPanel implements
     setVisible(false);
     m_NumEditable = 0;
     m_Target = targ;
-    Class<?> custClass = null;
     try {
       BeanInfo bi = Introspector.getBeanInfo(m_Target.getClass());
       m_Properties = bi.getPropertyDescriptors();
       m_Methods = bi.getMethodDescriptors();
-      custClass = Introspector.getBeanInfo(m_Target.getClass())
-        .getBeanDescriptor().getCustomizerClass();
     } catch (IntrospectionException ex) {
-      System.err.println("PropertySheet: Couldn't introspect");
+      System.err.println(Messages.getInstance().getString(
+        "PropertySheetPanel_SetTarget_IntrospectionException_Error_Text"));
       return;
     }
 
@@ -444,42 +415,13 @@ public class PropertySheetPanel extends JPanel implements
     m_HelpText = null;
     // Look for a globalInfo method that returns a string
     // describing the target
-    Object args[] = {};
-    boolean firstTip = true;
-    StringBuffer optionsBuff = new StringBuffer();
     for (MethodDescriptor m_Method : m_Methods) {
       String name = m_Method.getDisplayName();
       Method meth = m_Method.getMethod();
-      OptionMetadata o = meth.getAnnotation(OptionMetadata.class);
-
-      if (name.endsWith("TipText") || o != null) {
-        if (meth.getReturnType().equals(String.class) || o != null) {
-          try {
-            String tempTip = o != null ? o.description() : (String) (meth.invoke(m_Target, args));
-            // int ci = tempTip.indexOf('.');
-            name = o != null ? o.displayName() : name;
-
-            if (firstTip) {
-              optionsBuff.append("OPTIONS\n");
-              firstTip = false;
-            }
-            tempTip = tempTip.replace("<html>", "").replace("</html>", "")
-              .replace("<br>", "\n").replace("<p>", "\n\n");
-            optionsBuff.append(name.replace("TipText", "")).append(" -- ");
-            optionsBuff.append(tempTip).append("\n\n");
-            // jt.setText(m_HelpText.toString());
-
-          } catch (Exception ex) {
-
-          }
-          // break;
-        }
-      }
-
       if (name.equals("globalInfo")) {
         if (meth.getReturnType().equals(String.class)) {
           try {
-            // Object args[] = { };
+            Object args[] = {};
             String globalInfo = (String) (meth.invoke(m_Target, args));
             String summary = globalInfo;
             int ci = globalInfo.indexOf('.');
@@ -487,11 +429,24 @@ public class PropertySheetPanel extends JPanel implements
               summary = globalInfo.substring(0, ci + 1);
             }
             final String className = targ.getClass().getName();
-            m_HelpText = new StringBuffer("NAME\n");
-            m_HelpText.append(className).append("\n\n");
-            m_HelpText.append("SYNOPSIS\n").append(globalInfo).append("\n\n");
-            m_HelpBut = new JButton("More");
-            m_HelpBut.setToolTipText("More information about " + className);
+            m_HelpText = new StringBuffer(Messages.getInstance().getString(
+              "PropertySheetPanel_SetTarget_HelpText_Text_First"));
+            m_HelpText.append(className).append(
+              Messages.getInstance().getString(
+                "PropertySheetPanel_SetTarget_HelpText_Text_Second"));
+            m_HelpText
+              .append(
+                Messages.getInstance().getString(
+                  "PropertySheetPanel_SetTarget_HelpText_Text_Third"))
+              .append(globalInfo)
+              .append(
+                Messages.getInstance().getString(
+                  "PropertySheetPanel_SetTarget_HelpText_Text_Fourth"));
+            m_HelpBut = new JButton(Messages.getInstance().getString(
+              "PropertySheetPanel_SetTarget_HelpBut_JButton_Text"));
+            m_HelpBut.setToolTipText(Messages.getInstance().getString(
+              "PropertySheetPanel_SetTarget_HelpBut_SetToolTipText_Text")
+              + className);
 
             m_HelpBut.addActionListener(new ActionListener() {
               @Override
@@ -502,9 +457,14 @@ public class PropertySheetPanel extends JPanel implements
             });
 
             if (m_Target instanceof CapabilitiesHandler) {
-              m_CapabilitiesBut = new JButton("Capabilities");
-              m_CapabilitiesBut.setToolTipText("The capabilities of "
-                + className);
+              m_CapabilitiesBut = new JButton(Messages.getInstance().getString(
+                "PropertySheetPanel_SetTarget_CapabilitiesBut_JButton_Text"));
+              m_CapabilitiesBut
+                .setToolTipText(Messages
+                  .getInstance()
+                  .getString(
+                    "PropertySheetPanel_SetTarget_CapabilitiesBut_SetToolTipText_Text")
+                  + className);
 
               m_CapabilitiesBut.addActionListener(new ActionListener() {
                 @Override
@@ -526,7 +486,11 @@ public class PropertySheetPanel extends JPanel implements
             jt.setBackground(getBackground());
             JPanel jp = new JPanel();
             jp.setBorder(BorderFactory.createCompoundBorder(
-              BorderFactory.createTitledBorder("About"),
+              BorderFactory
+                .createTitledBorder(Messages
+                  .getInstance()
+                  .getString(
+                    "PropertySheetPanel_SetTarget_Jp_JPanel_BorderFactoryCreateTitledBorder_Text")),
               BorderFactory.createEmptyBorder(5, 5, 5, 5)));
             jp.setLayout(new BorderLayout());
             jp.add(jt, BorderLayout.CENTER);
@@ -548,12 +512,9 @@ public class PropertySheetPanel extends JPanel implements
             gbConstraints.insets = new Insets(0, 5, 0, 5);
             gbLayout.setConstraints(jp, gbConstraints);
             m_aboutPanel = jp;
-            if (m_showAboutPanel) {
-              scrollablePanel.add(m_aboutPanel);
-            }
+            scrollablePanel.add(m_aboutPanel);
             componentOffset = 1;
-
-            // break;
+            break;
           } catch (Exception ex) {
 
           }
@@ -561,154 +522,38 @@ public class PropertySheetPanel extends JPanel implements
       }
     }
 
-    if (m_HelpText != null) {
-      m_HelpText.append(optionsBuff.toString());
-    }
-
-    if (custClass != null) {
-      // System.out.println("**** We've found a customizer for this object!");
-      try {
-        Object customizer = custClass.newInstance();
-
-        if (customizer instanceof JComponent
-          && customizer instanceof GOECustomizer) {
-          m_Customizer = (GOECustomizer) customizer;
-
-          m_Customizer.dontShowOKCancelButtons();
-          m_Customizer.setObject(m_Target);
-
-          GridBagConstraints gbc = new GridBagConstraints();
-          gbc.fill = GridBagConstraints.BOTH;
-          gbc.gridwidth = 2;
-          gbc.gridy = componentOffset;
-          gbc.gridx = 0;
-          gbc.insets = new Insets(0, 5, 0, 5);
-          gbLayout.setConstraints((JComponent) m_Customizer, gbc);
-          scrollablePanel.add((JComponent) m_Customizer);
-
-          validate();
-
-          // sometimes, the calculated dimensions seem to be too small and the
-          // scrollbars show up, though there is still plenty of space on the
-          // screen. hence we increase the dimensions a bit to fix this.
-          Dimension dim = scrollablePanel.getPreferredSize();
-          dim.height += 20;
-          dim.width += 20;
-          scrollPane.setPreferredSize(dim);
-          validate();
-
-          setVisible(true);
-          return;
-        }
-      } catch (InstantiationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-
-    int[] propOrdering = new int[m_Properties.length];
-    for (int i = 0; i < propOrdering.length; i++) {
-      propOrdering[i] = Integer.MAX_VALUE;
-    }
-    for (int i = 0; i < m_Properties.length; i++) {
-      Method getter = m_Properties[i].getReadMethod();
-      Method setter = m_Properties[i].getWriteMethod();
-      if (getter == null || setter == null) {
-        continue;
-      }
-      List<Annotation> annotations = new ArrayList<Annotation>();
-      if (setter.getDeclaredAnnotations().length > 0) {
-        annotations.addAll(Arrays.asList(setter.getDeclaredAnnotations()));
-      }
-      if (getter.getDeclaredAnnotations().length > 0) {
-        annotations.addAll(Arrays.asList(getter.getDeclaredAnnotations()));
-      }
-      for (Annotation a : annotations) {
-        if (a instanceof OptionMetadata) {
-          propOrdering[i] = ((OptionMetadata)a).displayOrder();
-          break;
-        }
-      }
-    }
-    int[] sortedPropOrderings = Utils.sort(propOrdering);
     m_Editors = new PropertyEditor[m_Properties.length];
     m_Values = new Object[m_Properties.length];
     m_Views = new JComponent[m_Properties.length];
     m_Labels = new JLabel[m_Properties.length];
     m_TipTexts = new String[m_Properties.length];
-    // boolean firstTip = true;
+    boolean firstTip = true;
     for (int i = 0; i < m_Properties.length; i++) {
 
       // Don't display hidden or expert properties.
-      if (m_Properties[sortedPropOrderings[i]].isHidden() ||
-        m_Properties[sortedPropOrderings[i]].isExpert()) {
+      if (m_Properties[i].isHidden() || m_Properties[i].isExpert()) {
         continue;
       }
 
-      String name = m_Properties[sortedPropOrderings[i]].getDisplayName();
-      String origName = name;
-      Class<?> type = m_Properties[sortedPropOrderings[i]].getPropertyType();
-      Method getter = m_Properties[sortedPropOrderings[i]].getReadMethod();
-      Method setter = m_Properties[sortedPropOrderings[i]].getWriteMethod();
+      String name = m_Properties[i].getDisplayName();
+      Class type = m_Properties[i].getPropertyType();
+      Method getter = m_Properties[i].getReadMethod();
+      Method setter = m_Properties[i].getWriteMethod();
 
       // Only display read/write properties.
       if (getter == null || setter == null) {
         continue;
       }
 
-      List<Annotation> annotations = new ArrayList<Annotation>();
-      if (setter.getDeclaredAnnotations().length > 0) {
-        annotations.addAll(Arrays.asList(setter.getDeclaredAnnotations()));
-      }
-      if (getter.getDeclaredAnnotations().length > 0) {
-        annotations.addAll(Arrays.asList(getter.getDeclaredAnnotations()));
-      }
-
-      boolean skip = false;
-      boolean password = false;
-      FilePropertyMetadata fileProp = null;
-      for (Annotation a : annotations) {
-        if (a instanceof ProgrammaticProperty) {
-          skip = true; // skip property that is only supposed to be manipulated programatically
-          break;
-        }
-
-        if (a instanceof OptionMetadata) {
-          name = ((OptionMetadata) a).displayName();
-          String tempTip = ((OptionMetadata)a).description();
-          int ci = tempTip.indexOf( '.' );
-          if ( ci < 0 ) {
-            m_TipTexts[sortedPropOrderings[i]] = tempTip;
-          } else {
-            m_TipTexts[sortedPropOrderings[i]] = tempTip.substring( 0, ci );
-          }
-        }
-
-        if (a instanceof PasswordProperty) {
-          password = true;
-        }
-
-        if (a instanceof FilePropertyMetadata) {
-          fileProp = (FilePropertyMetadata) a;
-        }
-      }
-      if (skip) {
-        continue;
-      }
-
-
       JComponent view = null;
 
       try {
-        // Object args[] = { };
+        Object args[] = {};
         Object value = getter.invoke(m_Target, args);
-        m_Values[sortedPropOrderings[i]] = value;
+        m_Values[i] = value;
 
         PropertyEditor editor = null;
-        Class<?> pec = m_Properties[sortedPropOrderings[i]].getPropertyEditorClass();
+        Class pec = m_Properties[i].getPropertyEditorClass();
         if (pec != null) {
           try {
             editor = (PropertyEditor) pec.newInstance();
@@ -717,33 +562,20 @@ public class PropertySheetPanel extends JPanel implements
           }
         }
         if (editor == null) {
-          if (password && String.class.isAssignableFrom(type)) {
-            editor = new PasswordField();
-          } else if (m_useEnvironmentPropertyEditors && String.class.isAssignableFrom(
-            type)) {
-            editor = new EnvironmentField();
-          } else if ((m_useEnvironmentPropertyEditors || fileProp != null) && File.class.isAssignableFrom(
-            type)) {
-            if (fileProp != null) {
-              editor = new FileEnvironmentField("", fileProp.fileChooserDialogType(), fileProp.directoriesOnly());
-            } else {
-              editor = new FileEnvironmentField();
-            }
-          } else {
-            editor = PropertyEditorManager.findEditor(type);
-          }
+          editor = PropertyEditorManager.findEditor(type);
         }
-        m_Editors[sortedPropOrderings[i]] = editor;
+        m_Editors[i] = editor;
 
         // If we can't edit this component, skip it.
         if (editor == null) {
           // If it's a user-defined property we give a warning.
-          // String getterClass = m_Properties[i].getReadMethod()
-          // .getDeclaringClass().getName();
+          String getterClass = m_Properties[i].getReadMethod()
+            .getDeclaringClass().getName();
           /*
+           * if (getterClass.indexOf("java.") != 0) {
            * System.err.println("Warning: Can't find public property editor" +
            * " for property \"" + name + "\" (class \"" + type.getName() +
-           * "\").  Skipping.");
+           * "\").  Skipping."); }
            */
           continue;
         }
@@ -751,15 +583,11 @@ public class PropertySheetPanel extends JPanel implements
           ((GenericObjectEditor) editor).setClassType(type);
         }
 
-        if (editor instanceof EnvironmentHandler) {
-          ((EnvironmentHandler) editor).setEnvironment(m_env);
-        }
-
         // Don't try to set null values:
         if (value == null) {
           // If it's a user-defined property we give a warning.
-          // String getterClass = m_Properties[i].getReadMethod()
-          // .getDeclaringClass().getName();
+          String getterClass = m_Properties[i].getReadMethod()
+            .getDeclaringClass().getName();
           /*
            * if (getterClass.indexOf("java.") != 0) {
            * System.err.println("Warning: Property \"" + name +
@@ -770,34 +598,35 @@ public class PropertySheetPanel extends JPanel implements
 
         editor.setValue(value);
 
-        if (m_TipTexts[sortedPropOrderings[i]] == null) {
-          // now look for a TipText method for this property
-          String tipName = origName + "TipText";
-          for ( MethodDescriptor m_Method : m_Methods ) {
-            String mname = m_Method.getDisplayName();
-            Method meth = m_Method.getMethod();
-            if ( mname.equals( tipName ) ) {
-              if ( meth.getReturnType().equals( String.class ) ) {
-                try {
-                  String tempTip = (String) ( meth.invoke( m_Target, args ) );
-                  int ci = tempTip.indexOf( '.' );
-                  if ( ci < 0 ) {
-                    m_TipTexts[sortedPropOrderings[i]] = tempTip;
-                  } else {
-                    m_TipTexts[sortedPropOrderings[i]] = tempTip.substring( 0, ci );
-                  }
-                /*
-                 * if (m_HelpText != null) { if (firstTip) {
-                 * m_HelpText.append("OPTIONS\n"); firstTip = false; }
-                 * m_HelpText.append(name).append(" -- ");
-                 * m_HelpText.append(tempTip).append("\n\n");
-                 * //jt.setText(m_HelpText.toString()); }
-                 */
-                } catch ( Exception ex ) {
-
+        // now look for a TipText method for this property
+        String tipName = name + "TipText";
+        for (MethodDescriptor m_Method : m_Methods) {
+          String mname = m_Method.getDisplayName();
+          Method meth = m_Method.getMethod();
+          if (mname.equals(tipName)) {
+            if (meth.getReturnType().equals(String.class)) {
+              try {
+                String tempTip = (String) (meth.invoke(m_Target, args));
+                int ci = tempTip.indexOf('.');
+                if (ci < 0) {
+                  m_TipTexts[i] = tempTip;
+                } else {
+                  m_TipTexts[i] = tempTip.substring(0, ci);
                 }
-                break;
+                if (m_HelpText != null) {
+                  if (firstTip) {
+                    m_HelpText.append(Messages.getInstance().getString(
+                      "PropertySheetPanel_SetTarget_HelpText_Text_Fifth"));
+                    firstTip = false;
+                  }
+                  m_HelpText.append(name).append(" -- ");
+                  m_HelpText.append(tempTip).append("\n\n");
+                  // jt.setText(m_HelpText.toString());
+                }
+              } catch (Exception ex) {
+
               }
+              break;
             }
           }
         }
@@ -805,50 +634,58 @@ public class PropertySheetPanel extends JPanel implements
         // Now figure out how to display it...
         if (editor.isPaintable() && editor.supportsCustomEditor()) {
           view = new PropertyPanel(editor);
-        } else if (editor.supportsCustomEditor()
-          && (editor.getCustomEditor() instanceof JComponent)) {
-          view = (JComponent) editor.getCustomEditor();
         } else if (editor.getTags() != null) {
           view = new PropertyValueSelector(editor);
         } else if (editor.getAsText() != null) {
+          // String init = editor.getAsText();
           view = new PropertyText(editor);
         } else {
-          System.err.println("Warning: Property \"" + name
-            + "\" has non-displayabale editor.  Skipping.");
+          System.err.println(Messages.getInstance().getString(
+            "PropertySheetPanel_SetTarget_Error_Text_First")
+            + name
+            + Messages.getInstance().getString(
+              "PropertySheetPanel_SetTarget_Error_Text_Second"));
           continue;
         }
 
         editor.addPropertyChangeListener(this);
 
       } catch (InvocationTargetException ex) {
-        System.err.println("Skipping property " + name
-          + " ; exception on target: " + ex.getTargetException());
+        System.err.println(Messages.getInstance().getString(
+          "PropertySheetPanel_SetTarget_Error_Text_Third")
+          + name
+          + Messages.getInstance().getString(
+            "PropertySheetPanel_SetTarget_Error_Text_Fourth")
+          + ex.getTargetException());
         ex.getTargetException().printStackTrace();
         continue;
       } catch (Exception ex) {
-        System.err.println("Skipping property " + name + " ; exception: " + ex);
+        System.err.println(Messages.getInstance().getString(
+          "PropertySheetPanel_SetTarget_Error_Text_Fifth")
+          + name
+          + Messages.getInstance().getString(
+            "PropertySheetPanel_SetTarget_Error_Text_Sixth") + ex);
         ex.printStackTrace();
         continue;
       }
 
-      m_Labels[sortedPropOrderings[i]] = new JLabel(name, SwingConstants.RIGHT);
-      m_Labels[sortedPropOrderings[i]].setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 5));
-      m_Views[sortedPropOrderings[i]] = view;
+      m_Labels[i] = new JLabel(name, SwingConstants.RIGHT);
+      m_Labels[i].setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 5));
+      m_Views[i] = view;
       GridBagConstraints gbConstraints = new GridBagConstraints();
       gbConstraints.anchor = GridBagConstraints.EAST;
       gbConstraints.fill = GridBagConstraints.HORIZONTAL;
       gbConstraints.gridy = i + componentOffset;
       gbConstraints.gridx = 0;
-      gbLayout.setConstraints(m_Labels[sortedPropOrderings[i]], gbConstraints);
-      scrollablePanel.add(m_Labels[sortedPropOrderings[i]]);
+      gbLayout.setConstraints(m_Labels[i], gbConstraints);
+      scrollablePanel.add(m_Labels[i]);
       JPanel newPanel = new JPanel();
-      if (m_TipTexts[sortedPropOrderings[i]] != null) {
-        m_Views[sortedPropOrderings[i]].setToolTipText(m_TipTexts[sortedPropOrderings[i]]);
-        m_Labels[sortedPropOrderings[i]].setToolTipText(m_TipTexts[sortedPropOrderings[i]]);
+      if (m_TipTexts[i] != null) {
+        m_Views[i].setToolTipText(m_TipTexts[i]);
       }
       newPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 10));
       newPanel.setLayout(new BorderLayout());
-      newPanel.add(m_Views[sortedPropOrderings[i]], BorderLayout.CENTER);
+      newPanel.add(m_Views[i], BorderLayout.CENTER);
       gbConstraints = new GridBagConstraints();
       gbConstraints.anchor = GridBagConstraints.WEST;
       gbConstraints.fill = GridBagConstraints.BOTH;
@@ -861,7 +698,9 @@ public class PropertySheetPanel extends JPanel implements
     }
 
     if (m_NumEditable == 0) {
-      JLabel empty = new JLabel("No editable properties", SwingConstants.CENTER);
+      JLabel empty = new JLabel(Messages.getInstance().getString(
+        "PropertySheetPanel_SetTarget_Empty_JLabel_Text"),
+        SwingConstants.CENTER);
       Dimension d = empty.getPreferredSize();
       empty.setPreferredSize(new Dimension(d.width * 2, d.height * 2));
       empty.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 10));
@@ -875,16 +714,6 @@ public class PropertySheetPanel extends JPanel implements
     }
 
     validate();
-
-    // sometimes, the calculated dimensions seem to be too small and the
-    // scrollbars show up, though there is still plenty of space on the
-    // screen. hence we increase the dimensions a bit to fix this.
-    Dimension dim = scrollablePanel.getPreferredSize();
-    dim.height += 20;
-    dim.width += 20;
-    scrollPane.setPreferredSize(dim);
-    validate();
-
     setVisible(true);
   }
 
@@ -903,12 +732,13 @@ public class PropertySheetPanel extends JPanel implements
     ta.setCaretPosition(0);
     JDialog jdtmp;
     if (PropertyDialog.getParentDialog(this) != null) {
-      jdtmp = new JDialog(PropertyDialog.getParentDialog(this), "Information");
-    } else if (PropertyDialog.getParentFrame(this) != null) {
-      jdtmp = new JDialog(PropertyDialog.getParentFrame(this), "Information");
+      jdtmp = new JDialog(PropertyDialog.getParentDialog(this), Messages
+        .getInstance().getString(
+          "PropertySheetPanel_OpenHelpFrame_Jdtmp_JDialog_Text_First"));
     } else {
-      jdtmp = new JDialog(PropertyDialog.getParentDialog(m_aboutPanel),
-        "Information");
+      jdtmp = new JDialog(PropertyDialog.getParentFrame(this), Messages
+        .getInstance().getString(
+          "PropertySheetPanel_OpenHelpFrame_Jdtmp_JDialog_Text_Second"));
     }
     final JDialog jd = jdtmp;
     jd.addWindowListener(new WindowAdapter() {
@@ -953,7 +783,7 @@ public class PropertySheetPanel extends JPanel implements
 
   /**
    * Gets the number of editable properties for the current target.
-   *
+   * 
    * @return the number of editable properties.
    */
   public int editableProperties() {
@@ -962,18 +792,9 @@ public class PropertySheetPanel extends JPanel implements
   }
 
   /**
-   * Returns true if the object being edited has a customizer
-   *
-   * @return true if the object being edited has a customizer
-   */
-  public boolean hasCustomizer() {
-    return m_Customizer != null;
-  }
-
-  /**
    * Updates the propertysheet when a value has been changed (from outside the
    * propertysheet?).
-   *
+   * 
    * @param evt a value of type 'PropertyChangeEvent'
    */
   synchronized void wasModified(PropertyChangeEvent evt) {
@@ -993,7 +814,8 @@ public class PropertySheetPanel extends JPanel implements
             setter.invoke(m_Target, args);
           } catch (InvocationTargetException ex) {
             if (ex.getTargetException() instanceof PropertyVetoException) {
-              String message = "WARNING: Vetoed; reason is: "
+              String message = Messages.getInstance().getString(
+                "PropertySheetPanel_WasModified_Message_Text")
                 + ex.getTargetException().getMessage();
               System.err.println(message);
 
@@ -1003,15 +825,26 @@ public class PropertySheetPanel extends JPanel implements
               } else {
                 jf = new JFrame();
               }
-              JOptionPane.showMessageDialog(jf, message, "error",
-                JOptionPane.WARNING_MESSAGE);
+              JOptionPane
+                .showMessageDialog(
+                  jf,
+                  message,
+                  Messages
+                    .getInstance()
+                    .getString(
+                      "PropertySheetPanel_WasModified_JOptionPaneShowMessageDialog_Text_First"),
+                  JOptionPane.WARNING_MESSAGE);
               if (jf instanceof JFrame) {
                 ((JFrame) jf).dispose();
               }
 
             } else {
               System.err.println(ex.getTargetException().getClass().getName()
-                + " while updating " + property.getName() + ": "
+                + Messages.getInstance().getString(
+                  "PropertySheetPanel_WasModified_Error_Text_First")
+                + property.getName()
+                + Messages.getInstance().getString(
+                  "PropertySheetPanel_WasModified_Error_Text_Second")
                 + ex.getTargetException().getMessage());
               Component jf;
               if (evt.getSource() instanceof JPanel) {
@@ -1019,21 +852,37 @@ public class PropertySheetPanel extends JPanel implements
               } else {
                 jf = new JFrame();
               }
-              JOptionPane.showMessageDialog(jf, ex.getTargetException()
-                .getClass().getName()
-                + " while updating "
-                + property.getName()
-                + ":\n"
-                + ex.getTargetException().getMessage(), "error",
-                JOptionPane.WARNING_MESSAGE);
+              JOptionPane
+                .showMessageDialog(
+                  jf,
+                  ex.getTargetException().getClass().getName()
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "PropertySheetPanel_WasModified_JOptionPaneShowMessageDialog_Second")
+                    + property.getName()
+                    + Messages
+                      .getInstance()
+                      .getString(
+                        "PropertySheetPanel_WasModified_JOptionPaneShowMessageDialog_Third")
+                    + ex.getTargetException().getMessage(),
+                  Messages
+                    .getInstance()
+                    .getString(
+                      "PropertySheetPanel_WasModified_JOptionPaneShowMessageDialog_Fourth"),
+                  JOptionPane.WARNING_MESSAGE);
               if (jf instanceof JFrame) {
                 ((JFrame) jf).dispose();
               }
 
             }
           } catch (Exception ex) {
-            System.err.println("Unexpected exception while updating "
-              + property.getName());
+            System.err
+              .println(Messages
+                .getInstance()
+                .getString(
+                  "PropertySheetPanel_WasModified_JOptionPaneShowMessageDialog_Fifth")
+                + property.getName());
           }
           if (m_Views[i] != null && m_Views[i] instanceof PropertyPanel) {
             // System.err.println("Trying to repaint the property canvas");
@@ -1085,41 +934,6 @@ public class PropertySheetPanel extends JPanel implements
     // Make sure the target bean gets repainted.
     if (Beans.isInstanceOf(m_Target, Component.class)) {
       ((Component) (Beans.getInstanceOf(m_Target, Component.class))).repaint();
-    }
-  }
-
-  /**
-   * Set environment variables to pass on to any editor that can use them
-   *
-   * @param env the variables to pass on to individual property editors
-   */
-  @Override
-  public void setEnvironment(Environment env) {
-    m_env = env;
-  }
-
-  /**
-   * Pass on an OK closing notification to the customizer (if one is in use)
-   */
-  public void closingOK() {
-    if (m_Customizer != null) {
-      // pass on the notification to the customizer so that
-      // it can copy values out of its GUI widgets into the object
-      // being customized, if necessary
-      m_Customizer.closingOK();
-    }
-  }
-
-  /**
-   * Pass on a CANCEL closing notificiation to the customizer (if one is in
-   * use).
-   */
-  public void closingCancel() {
-    // pass on the notification to the customizer so that
-    // it can revert to previous settings for the object being
-    // edited, if neccessary
-    if (m_Customizer != null) {
-      m_Customizer.closingCancel();
     }
   }
 }

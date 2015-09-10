@@ -38,7 +38,7 @@ import java.io.Serializable;
  * @author The Mathworks and NIST 
  * @author Fracpete (fracpete at waikato dot ac dot nz)
  * @author eibe@cs.waikato.ac.nz
- * @version $Revision$
+ * @version $Revision: 11815 $
  */
 public class SingularValueDecomposition 
   implements Serializable, RevisionHandler {
@@ -591,6 +591,6 @@ public class SingularValueDecomposition
    * @return		the revision
    */
   public String getRevision() {
-    return RevisionUtils.extract("$Revision$");
+    return RevisionUtils.extract("$Revision: 11815 $");
   }
 }

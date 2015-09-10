@@ -1,21 +1,22 @@
 /*
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
  *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program; if not, write to the Free Software
+ *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 /*
  *    Utils.java
- *    Copyright (C) 1999-2012 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 1999-2004 University of Waikato, Hamilton, New Zealand
  *
  */
 
@@ -24,31 +25,19 @@ package weka.core;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.MethodDescriptor;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.math.RoundingMode;
-import java.net.URL;
 import java.text.BreakIterator;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Vector;
 
-import weka.Run;
 import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.
- *
+ * 
  * @author Eibe Frank
  * @author Yong Wang
  * @author Len Trigg
@@ -57,73 +46,18 @@ import weka.gui.PropertySheetPanel;
  */
 public final class Utils implements RevisionHandler {
 
-  /**
-   * The natural logarithm of 2.
-   */
+  /** The natural logarithm of 2. */
   public static double log2 = Math.log(2);
 
-  /**
-   * The small deviation allowed in double comparisons.
-   */
+  /** The small deviation allowed in double comparisons. */
   public static double SMALL = 1e-6;
 
-  /** Decimal format */
-  private static final ThreadLocal<DecimalFormat> DF = new ThreadLocal<DecimalFormat>() {
-
-    @Override
-    protected DecimalFormat initialValue() {
-
-      DecimalFormat df = new DecimalFormat();
-      DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
-      dfs.setDecimalSeparator('.');
-      dfs.setNaN("NaN");
-      dfs.setInfinity("Infinity");
-      df.setGroupingUsed(false);
-      df.setRoundingMode(RoundingMode.HALF_UP);
-      df.setDecimalFormatSymbols(dfs);
-      return df;
-    }
-  };
-
-  /**
-   * Tests if the given value codes "missing".
-   * 
-   * @param val the value to be tested
-   * @return true if val codes "missing"
-   */
-  public static boolean isMissingValue(double val) {
-
-    return Double.isNaN(val);
-  }
-
-  /**
-   * Returns the value used to code a missing value. Note that equality tests on
-   * this value will always return false, so use isMissingValue(double val) for
-   * testing..
-   * 
-   * @return the value used as missing value.
-   */
-  public static double missingValue() {
-
-    return Double.NaN;
-  }
-
-  /**
-   * Casting an object without "unchecked" compile-time warnings. Use only when
-   * absolutely necessary (e.g. when using clone()).
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> T cast(Object x) {
-    return (T) x;
-  }
-  
   /**
    * Reads properties that inherit from three locations. Properties are first
    * defined in the system resource location (i.e. in the CLASSPATH). These
-   * default properties must exist. Properties optionally defined in the user
-   * properties location (WekaPackageManager.PROPERTIES_DIR) override default
-   * settings. Properties defined in the current directory (optional) override
-   * all these settings.
+   * default properties must exist. Properties defined in the users home
+   * directory (optional) override default settings. Properties defined in the
+   * current directory (optional) override all these settings.
    * 
    * @param resourceName the location of the resource that should be loaded.
    *          e.g.: "weka/core/Utils.props". (The use of hardcoded forward
@@ -141,24 +75,16 @@ public final class Utils implements RevisionHandler {
     try {
       // Apparently hardcoded slashes are OK here
       // jdk1.1/docs/guide/misc/resources.html
-      Utils utils = new Utils();
-      Enumeration<URL> urls = utils.getClass().getClassLoader()
-        .getResources(resourceName);
-      boolean first = true;
-      while (urls.hasMoreElements()) {
-        URL url = urls.nextElement();
-        if (first) {
-          defaultProps.load(url.openStream());
-          first = false;
-        } else {
-          Properties props = new Properties(defaultProps);
-          props.load(url.openStream());
-          defaultProps = props;
-        }
-      }
+      // defaultProps.load(ClassLoader.getSystemResourceAsStream(resourceName));
+      defaultProps.load((new Utils()).getClass().getClassLoader()
+        .getResourceAsStream(resourceName));
     } catch (Exception ex) {
-      System.err.println("Warning, unable to load properties file(s) from "
-        + "system resource (Utils.java): " + resourceName);
+      /*
+       * throw new Exception("Problem reading default properties: " +
+       * ex.getMessage());
+       */
+      System.err.println("Warning, unable to load properties file from "
+        + "system resource (Utils.java)");
     }
 
     // Hardcoded slash is OK here
@@ -168,15 +94,10 @@ public final class Utils implements RevisionHandler {
       resourceName = resourceName.substring(slInd + 1);
     }
 
-    // Allow a properties file in the WekaPackageManager.PROPERTIES_DIR to
-    // override
+    // Allow a properties file in the home directory to override
     Properties userProps = new Properties(defaultProps);
-    if (!WekaPackageManager.PROPERTIES_DIR.exists()) {
-      WekaPackageManager.PROPERTIES_DIR.mkdir();
-    }
-    File propFile = new File(WekaPackageManager.PROPERTIES_DIR.toString()
-      + File.separator + resourceName);
-
+    File propFile = new File(System.getProperties().getProperty("user.home")
+      + File.separatorChar + resourceName);
     if (propFile.exists()) {
       try {
         userProps.load(new FileInputStream(propFile));
@@ -196,7 +117,7 @@ public final class Utils implements RevisionHandler {
       }
     }
 
-    return new EnvironmentProperties(localProps);
+    return localProps;
   }
 
   /**
@@ -279,32 +200,6 @@ public final class Utils implements RevisionHandler {
 
   /**
    * Pads a string to a specified length, inserting spaces on the left as
-   * required. If the string is too long, it is simply returned unchanged.
-   * 
-   * @param inString the input string
-   * @param length the desired length of the output string
-   * @return the output string
-   */
-  public static String padLeftAndAllowOverflow(String inString, int length) {
-
-    return String.format("%1$" + length + "s", inString);
-  }
-
-  /**
-   * Pads a string to a specified length, inserting spaces on the right as
-   * required. If the string is too long, it is simply returned unchanged.
-   * 
-   * @param inString the input string
-   * @param length the desired length of the output string
-   * @return the output string
-   */
-  public static String padRightAndAllowOverflow(String inString, int length) {
-
-	  return String.format("%1$-" + length + "s", inString);
-  }
-
-  /**
-   * Pads a string to a specified length, inserting spaces on the left as
    * required. If the string is too long, characters are removed (from the
    * right).
    * 
@@ -314,7 +209,7 @@ public final class Utils implements RevisionHandler {
    */
   public static String padLeft(String inString, int length) {
 
-    return String.format("%1$" + length + "." + length + "s", inString);
+    return fixStringLength(inString, length, false);
   }
 
   /**
@@ -328,7 +223,29 @@ public final class Utils implements RevisionHandler {
    */
   public static String padRight(String inString, int length) {
 
-    return String.format("%1$-" + length + "." + length + "s", inString);
+    return fixStringLength(inString, length, true);
+  }
+
+  /**
+   * Pads a string to a specified length, inserting spaces as required. If the
+   * string is too long, characters are removed (from the right).
+   * 
+   * @param inString the input string
+   * @param length the desired length of the output string
+   * @param right true if inserted spaces should be added to the right
+   * @return the output string
+   */
+  private static/* @pure@ */String fixStringLength(String inString, int length,
+    boolean right) {
+
+    if (inString.length() < length) {
+      while (inString.length() < length) {
+        inString = (right ? inString.concat(" ") : " ".concat(inString));
+      }
+    } else if (inString.length() > length) {
+      inString = inString.substring(0, length);
+    }
+    return inString;
   }
 
   /**
@@ -342,8 +259,50 @@ public final class Utils implements RevisionHandler {
   public static/* @pure@ */String doubleToString(double value,
     int afterDecimalPoint) {
 
-    DF.get().setMaximumFractionDigits(afterDecimalPoint);
-    return DF.get().format(value);
+    StringBuffer stringBuffer;
+    double temp;
+    int dotPosition;
+    long precisionValue;
+
+    temp = value * Math.pow(10.0, afterDecimalPoint);
+    if (Math.abs(temp) < Long.MAX_VALUE) {
+      precisionValue = (temp > 0) ? (long) (temp + 0.5) : -(long) (Math
+        .abs(temp) + 0.5);
+      if (precisionValue == 0) {
+        stringBuffer = new StringBuffer(String.valueOf(0));
+      } else {
+        stringBuffer = new StringBuffer(String.valueOf(precisionValue));
+      }
+      if (afterDecimalPoint == 0) {
+        return stringBuffer.toString();
+      }
+      dotPosition = stringBuffer.length() - afterDecimalPoint;
+      while (((precisionValue < 0) && (dotPosition < 1)) || (dotPosition < 0)) {
+        if (precisionValue < 0) {
+          stringBuffer.insert(1, '0');
+        } else {
+          stringBuffer.insert(0, '0');
+        }
+        dotPosition++;
+      }
+      stringBuffer.insert(dotPosition, '.');
+      if ((precisionValue < 0) && (stringBuffer.charAt(1) == '.')) {
+        stringBuffer.insert(1, '0');
+      } else if (stringBuffer.charAt(0) == '.') {
+        stringBuffer.insert(0, '0');
+      }
+      int currentPos = stringBuffer.length() - 1;
+      while ((currentPos > dotPosition)
+        && (stringBuffer.charAt(currentPos) == '0')) {
+        stringBuffer.setCharAt(currentPos--, ' ');
+      }
+      if (stringBuffer.charAt(currentPos) == '.') {
+        stringBuffer.setCharAt(currentPos, ' ');
+      }
+
+      return stringBuffer.toString().trim();
+    }
+    return new String("" + value);
   }
 
   /**
@@ -362,7 +321,9 @@ public final class Utils implements RevisionHandler {
     char[] result;
     int dotPosition;
 
-    if (afterDecimalPoint >= width) {
+    if ((afterDecimalPoint >= width) || (tempString.indexOf('E') != -1)) { // Protects
+                                                                           // sci
+                                                                           // notation
       return tempString;
     }
 
@@ -414,7 +375,7 @@ public final class Utils implements RevisionHandler {
    * @param c the array to inspect
    * @return the class of the innermost elements
    */
-  public static Class<?> getArrayClass(Class<?> c) {
+  public static Class getArrayClass(Class c) {
     if (c.getComponentType().isArray()) {
       return getArrayClass(c.getComponentType());
     } else {
@@ -430,7 +391,7 @@ public final class Utils implements RevisionHandler {
    * @param array the array to determine the dimensions for
    * @return the dimensions of the array
    */
-  public static int getArrayDimensions(Class<?> array) {
+  public static int getArrayDimensions(Class array) {
     if (array.getComponentType().isArray()) {
       return 1 + getArrayDimensions(array.getComponentType());
     } else {
@@ -499,7 +460,7 @@ public final class Utils implements RevisionHandler {
    */
   public static/* @pure@ */boolean eq(double a, double b) {
 
-    return (a == b) || ((a - b < SMALL) && (b - a < SMALL));
+    return (a == b) || (a - b < SMALL) && (b - a < SMALL);
   }
 
   /**
@@ -937,7 +898,7 @@ public final class Utils implements RevisionHandler {
   public static String[] splitOptions(String quotedOptionString)
     throws Exception {
 
-    Vector<String> optionsVec = new Vector<String>();
+    FastVector optionsVec = new FastVector();
     String str = new String(quotedOptionString);
     int i;
 
@@ -998,7 +959,7 @@ public final class Utils implements RevisionHandler {
     // convert optionsVec to an array of String
     String[] options = new String[optionsVec.size()];
     for (i = 0; i < optionsVec.size(); i++) {
-      options[i] = optionsVec.elementAt(i);
+      options[i] = (String) optionsVec.elementAt(i);
     }
     return options;
   }
@@ -1060,73 +1021,7 @@ public final class Utils implements RevisionHandler {
    *              assignable to the desired class type, or the options supplied
    *              are not acceptable to the object
    */
-  public static Object forName(Class<?> classType, String className,
-    String[] options) throws Exception {
-
-    if (System.getProperty("weka.test.maventest", "").equalsIgnoreCase("true")) {
-      return forNameNoSchemeMatch(classType, className, options);
-    }
-
-    List<String> matches = Run.findSchemeMatch(classType, className, false,
-      true);
-    if (matches.size() == 0) {
-      throw new Exception("Can't find class called: " + className);
-    }
-
-    if (matches.size() > 1) {
-      StringBuffer sb = new StringBuffer("More than one possibility matched '"
-        + className + "':\n");
-      for (String s : matches) {
-        sb.append("  " + s + '\n');
-      }
-      throw new Exception(sb.toString());
-    }
-
-    className = matches.get(0);
-
-    Class<?> c = null;
-    try {
-      c = Class.forName(className);
-    } catch (Exception ex) {
-      throw new Exception("Can't find class called: " + className);
-    }
-
-    Object o = c.newInstance();
-    if ((o instanceof OptionHandler) && (options != null)) {
-      ((OptionHandler) o).setOptions(options);
-      Utils.checkForRemainingOptions(options);
-    }
-    return o;
-  }
-
-  /**
-   * Creates a new instance of an object given it's class name and (optional)
-   * arguments to pass to it's setOptions method. If the object implements
-   * OptionHandler and the options parameter is non-null, the object will have
-   * it's options set. Example use:
-   * <p>
-   * 
-   * <code> <pre>
-   * String classifierName = Utils.getOption('W', options);
-   * Classifier c = (Classifier)Utils.forName(Classifier.class,
-   *                                          classifierName,
-   *                                          options);
-   * setClassifier(c);
-   * </pre></code>
-   * 
-   * @param classType the class that the instantiated object should be
-   *          assignable to -- an exception is thrown if this is not the case
-   * @param className the fully qualified class name of the object
-   * @param options an array of options suitable for passing to setOptions. May
-   *          be null. Any options accepted by the object will be removed from
-   *          the array.
-   * @return the newly created object, ready for use.
-   * @exception Exception if the class name is invalid, or if the class is not
-   *              assignable to the desired class type, or the options supplied
-   *              are not acceptable to the object
-   */
-  protected static Object forNameNoSchemeMatch(Class classType,
-    String className,
+  public static Object forName(Class classType, String className,
     String[] options) throws Exception {
 
     Class c = null;
@@ -1145,29 +1040,6 @@ public final class Utils implements RevisionHandler {
       Utils.checkForRemainingOptions(options);
     }
     return o;
-  }
-
-  /**
-   * Generates a commandline of the given object. If the object is not
-   * implementing OptionHandler, then it will only return the classname,
-   * otherwise also the options.
-   * 
-   * @param obj the object to turn into a commandline
-   * @return the commandline
-   */
-  public static String toCommandLine(Object obj) {
-    StringBuffer result;
-
-    result = new StringBuffer();
-
-    if (obj != null) {
-      result.append(obj.getClass().getName());
-      if (obj instanceof OptionHandler) {
-        result.append(" " + joinOptions(((OptionHandler) obj).getOptions()));
-      }
-    }
-
-    return result.toString().trim();
   }
 
   /**
@@ -1509,7 +1381,7 @@ public final class Utils implements RevisionHandler {
   public static void replaceMissingWithMAX_VALUE(double[] array) {
 
     for (int i = 0; i < array.length; i++) {
-      if (isMissingValue(array[i])) {
+      if (Instance.isMissingValue(array[i])) {
         array[i] = Double.MAX_VALUE;
       }
     }
@@ -1541,11 +1413,14 @@ public final class Utils implements RevisionHandler {
    */
   public static/* @pure@ */int[] sort(int[] array) {
 
-    int[] index = initialIndex(array.length);
+    int[] index = new int[array.length];
     int[] newIndex = new int[array.length];
     int[] helpIndex;
     int numEqual;
 
+    for (int i = 0; i < index.length; i++) {
+      index[i] = i;
+    }
     quickSort(array, index, 0, array.length - 1);
 
     // Make sort stable
@@ -1605,7 +1480,7 @@ public final class Utils implements RevisionHandler {
    * @return an array of integers with the positions in the sorted array.
    */
   public static/* @pure@ */int[] sortWithNoMissingValues(
-    /* @non_null@ */double[] array) {
+  /* @non_null@ */double[] array) {
 
     int[] index = initialIndex(array.length);
     if (array.length > 1) {
@@ -1675,25 +1550,23 @@ public final class Utils implements RevisionHandler {
    */
   public static/* @pure@ */double variance(double[] vector) {
 
-    if (vector.length <= 1)
-      return Double.NaN;
-    
-    double mean = 0;
-    double var = 0;
-    
-    for (int i = 0; i < vector.length; i++) {
-      double delta = vector[i] - mean;
-      mean += delta/(i + 1);
-      var += (vector[i] - mean)*delta;
+    double sum = 0, sumSquared = 0;
+
+    if (vector.length <= 1) {
+      return 0;
     }
-    
-    var /= vector.length - 1;
+    for (double element : vector) {
+      sum += element;
+      sumSquared += (element * element);
+    }
+    double result = (sumSquared - (sum * sum / vector.length))
+      / (vector.length - 1);
 
     // We don't like negative variance
-    if (var < 0) {
+    if (result < 0) {
       return 0;
     } else {
-      return var;
+      return result;
     }
   }
 
@@ -1902,8 +1775,7 @@ public final class Utils implements RevisionHandler {
 
       // Move pivot to the right, partition, and restore pivot
       swap(index, pivotLocation, right - 1);
-      int center =
-        partition(array, index, left, right, array[index[right - 1]]);
+      int center = partition(array, index, left, right, array[index[right - 1]]);
       swap(index, center, right - 1);
 
       // Sort recursively
@@ -1976,8 +1848,7 @@ public final class Utils implements RevisionHandler {
 
       // Move pivot to the right, partition, and restore pivot
       swap(index, pivotLocation, right - 1);
-      int center =
-        partition(array, index, left, right, array[index[right - 1]]);
+      int center = partition(array, index, left, right, array[index[right - 1]]);
       swap(index, center, right - 1);
 
       // Proceed recursively
@@ -2121,177 +1992,6 @@ public final class Utils implements RevisionHandler {
         return select(array, index, middle + 1, right, k - (middle - left + 1));
       }
     }
-  }
-
-  /**
-   * For a named dialog, returns true if the user has opted not to view it again
-   * in the future.
-   * 
-   * @param dialogName the name of the dialog to check (e.g.
-   *          weka.gui.GUICHooser.HowToFindPackageManager).
-   * @return true if the user has opted not to view the named dialog in the
-   *         future.
-   */
-  public static boolean getDontShowDialog(String dialogName) {
-    File wekaHome = WekaPackageManager.WEKA_HOME;
-
-    if (!wekaHome.exists()) {
-      return false;
-    }
-
-    File dialogSubDir = new File(wekaHome.toString() + File.separator
-      + "systemDialogs");
-    if (!dialogSubDir.exists()) {
-      return false;
-    }
-
-    File dialogFile = new File(dialogSubDir.toString() + File.separator
-      + dialogName);
-
-    return dialogFile.exists();
-  }
-
-  /**
-   * Specify that the named dialog is not to be displayed in the future.
-   * 
-   * @param dialogName the name of the dialog not to show again (e.g.
-   *          weka.gui.GUIChooser.HowToFindPackageManager).
-   * @throws Exception if the marker file that is used to indicate that a named
-   *           dialog is not to be shown can't be created. This file lives in
-   *           $WEKA_HOME/systemDialogs
-   */
-  public static void setDontShowDialog(String dialogName) throws Exception {
-    File wekaHome = WekaPackageManager.WEKA_HOME;
-
-    if (!wekaHome.exists()) {
-      return;
-    }
-
-    File dialogSubDir = new File(wekaHome.toString() + File.separator
-      + "systemDialogs");
-    if (!dialogSubDir.exists()) {
-      if (!dialogSubDir.mkdir()) {
-        return;
-      }
-    }
-
-    File dialogFile = new File(dialogSubDir.toString() + File.separator
-      + dialogName);
-    dialogFile.createNewFile();
-  }
-
-  /**
-   * For a named dialog, if the user has opted not to view it again, returns the
-   * answer the answer the user supplied when they closed the dialog. Returns
-   * null if the user did opt to view the dialog again.
-   * 
-   * @param dialogName the name of the dialog to check (e.g.
-   *          weka.gui.GUICHooser.HowToFindPackageManager).
-   * @return the answer the user supplied the last time they viewed the named
-   *         dialog (if they opted not to view it again in the future) or null
-   *         if the user opted to view the dialog again in the future.
-   */
-  public static String getDontShowDialogResponse(String dialogName)
-    throws Exception {
-    if (!getDontShowDialog(dialogName)) {
-      return null; // This must be the first time - no file recorded yet.
-    }
-
-    File wekaHome = WekaPackageManager.WEKA_HOME;
-    File dialogSubDir = new File(wekaHome.toString() + File.separator
-      + "systemDialogs" + File.separator + dialogName);
-
-    BufferedReader br = new BufferedReader(new FileReader(dialogSubDir));
-    String response = br.readLine();
-
-    br.close();
-    return response;
-  }
-
-  /**
-   * Specify that the named dialog is not to be shown again in the future. Also
-   * records the answer that the user chose when closing the dialog.
-   * 
-   * @param dialogName the name of the dialog to no longer display
-   * @param response the user selected response when they closed the dialog
-   * @throws Exception if there is a problem saving the information
-   */
-  public static void setDontShowDialogResponse(String dialogName,
-    String response) throws Exception {
-
-    File wekaHome = WekaPackageManager.WEKA_HOME;
-
-    if (!wekaHome.exists()) {
-      return;
-    }
-
-    File dialogSubDir = new File(wekaHome.toString() + File.separator
-      + "systemDialogs");
-    if (!dialogSubDir.exists()) {
-      if (!dialogSubDir.mkdir()) {
-        return;
-      }
-    }
-
-    File dialogFile = new File(dialogSubDir.toString() + File.separator
-      + dialogName);
-    BufferedWriter br = new BufferedWriter(new FileWriter(dialogFile));
-    br.write(response + "\n");
-    br.flush();
-    br.close();
-  }
-
-  /**
-   * Breaks up the string, if wider than "columns" characters.
-   * 
-   * @param s the string to process
-   * @param columns the width in columns
-   * @return the processed string
-   */
-  public static String[] breakUp(String s, int columns) {
-    Vector<String> result;
-    String line;
-    BreakIterator boundary;
-    int boundaryStart;
-    int boundaryEnd;
-    String word;
-    String punctuation;
-    int i;
-    String[] lines;
-
-    result = new Vector<String>();
-    punctuation = " .,;:!?'\"";
-    lines = s.split("\n");
-
-    for (i = 0; i < lines.length; i++) {
-      boundary = BreakIterator.getWordInstance();
-      boundary.setText(lines[i]);
-      boundaryStart = boundary.first();
-      boundaryEnd = boundary.next();
-      line = "";
-
-      while (boundaryEnd != BreakIterator.DONE) {
-        word = lines[i].substring(boundaryStart, boundaryEnd);
-        if (line.length() >= columns) {
-          if (word.length() == 1) {
-            if (punctuation.indexOf(word.charAt(0)) > -1) {
-              line += word;
-              word = "";
-            }
-          }
-          result.add(line);
-          line = "";
-        }
-        line += word;
-        boundaryStart = boundaryEnd;
-        boundaryEnd = boundary.next();
-      }
-      if (line.length() > 0) {
-        result.add(line);
-      }
-    }
-
-    return result.toArray(new String[result.size()]);
   }
 
   /**

@@ -4,9 +4,9 @@
 # Version: $Revision$
 
 # the logging class to use
-weka.core.logging.Logger=weka.core.logging.OutputLogger
-#weka.core.logging.Logger=weka.core.logging.ConsoleLogger
-#weka.core.logging.Logger=weka.core.logging.FileLogger
+Logger=weka.core.logging.OutputLogger
+#Logger=weka.core.logging.ConsoleLogger
+#Logger=weka.core.logging.FileLogger
 
 # the logging level that log message must have at least in order to appear in
 # the log. Possible values:
@@ -18,16 +18,15 @@ weka.core.logging.Logger=weka.core.logging.OutputLogger
 #   WARNING
 #   SEVERE
 #   OFF
-weka.core.logging.MinLevel=INFO
+MinLevel=INFO
 
 # the date format
-weka.core.logging.DateFormat=yyyy-MM-dd HH:mm:ss
+DateFormat=yyyy-MM-dd HH:mm:ss
 
 # the output file for the weka.core.logging.FileLogger
 # the following placeholders are recognized
 #   %t - the temp directory
 #   %h - the user's home directory
 #   %c - the current directory
-#   %w - WEKA_HOME
 #   %% - gets replaced by a single percentage sign
-weka.core.logging.LogFile=%w/weka.log
+LogFile=%h/weka.log

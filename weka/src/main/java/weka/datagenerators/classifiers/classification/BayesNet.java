@@ -73,7 +73,7 @@ import java.util.Vector;
  <!-- options-end -->
  * 
  * @author FracPete (fracpete at waikato dot ac dot nz)
- * @version $Revision$
+ * @version $Revision: 11753 $
  * @see BayesNetGenerator
  */
 
@@ -661,9 +661,8 @@ public class BayesNet extends ClassificationGenerator {
    * 
    * @return the revision
    */
-  @Override
   public String getRevision() {
-    return RevisionUtils.extract("$Revision$");
+    return RevisionUtils.extract("$Revision: 11753 $");
   }
 
   /**

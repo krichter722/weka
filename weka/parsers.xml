@@ -58,10 +58,10 @@
    <!-- central target for calling the parser targets -->
    <target name="parsers" depends="init" description="Generates all the parsers subsequently.">
       <antcall target="parser">
-         <param name="parserpkg" value="weka/core/expressionlanguage/parser"/>
+         <param name="parserpkg" value="weka/core/mathematicalexpression"/>
       </antcall>
       <antcall target="parser">
-         <param name="parserpkg" value="weka/core/json"/>
+         <param name="parserpkg" value="weka/filters/unsupervised/instance/subsetbyexpression"/>
       </antcall>
       <!-- add calls for more parsers here -->
    </target>
@@ -70,19 +70,18 @@
         (using Parser.cup and Scanner.jflex). -->
    <target name="parser" description="Generates the parser ${parserpkg}.">
       <echo message="Generating lexer (${parserpkg})."/>
-      <java classname="jflex.Main">
+      <java classname="JFlex.Main">
       	 <classpath refid="project.class.path"/>
          <arg value="--jlex"/>
          <arg value="--quiet"/>
          <arg value="--nobak"/>
-         <arg value="-d"/>
+         <arg value="--outdir"/>
          <arg value="${src}/${parserpkg}"/>
          <arg value="${src}/${parserpkg}/Scanner.jflex"/>
       </java>
       <echo message="Generating parser (${parserpkg})."/>
       <java classname="java_cup.Main">
       	 <classpath refid="project.class.path"/>
-         <arg value="-nopositions"/>
          <arg value="-parser"/>
          <arg value="Parser"/>
          <arg value="-interface"/>
