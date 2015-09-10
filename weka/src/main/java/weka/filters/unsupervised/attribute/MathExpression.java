@@ -92,7 +92,7 @@ import weka.filters.UnsupervisedFilter;
  * 
  * @author Eibe Frank (eibe@cs.waikato.ac.nz)
  * @author Prados Julien (julien.prados@cui.unige.ch)
- * @version $Revision$
+ * @version $Revision: 11882 $
  */
 public class MathExpression extends PotentialClassIgnorer implements
   UnsupervisedFilter {
@@ -611,7 +611,7 @@ public class MathExpression extends PotentialClassIgnorer implements
    */
   @Override
   public String getRevision() {
-    return RevisionUtils.extract("$Revision$");
+    return RevisionUtils.extract("$Revision: 11882 $");
   }
 
   /**

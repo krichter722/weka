@@ -74,7 +74,7 @@ import weka.filters.UnsupervisedFilter;
  * <!-- options-end -->
  * 
  * @author Eibe Frank
- * @version $Revision: ???? $
+ * @version $Revision$
  */
 public class MergeInfrequentNominalValues extends SimpleBatchFilter implements
   UnsupervisedFilter {
@@ -565,7 +565,7 @@ public class MergeInfrequentNominalValues extends SimpleBatchFilter implements
    */
   @Override
   public String getRevision() {
-    return RevisionUtils.extract("$Revision: 8034 $");
+    return RevisionUtils.extract("$Revision$");
   }
 
   /**

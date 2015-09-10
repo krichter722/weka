@@ -79,7 +79,7 @@ import weka.filters.SimpleBatchFilter;
  * <!-- options-end -->
  * 
  * @author fracpete (fracpete at waikato dot ac dot nz)
- * @version $Revision$
+ * @version $Revision: 11497 $
  */
 public class SubsetByExpression extends SimpleBatchFilter {
 
@@ -433,7 +433,7 @@ public class SubsetByExpression extends SimpleBatchFilter {
    */
   @Override
   public String getRevision() {
-    return RevisionUtils.extract("$Revision$");
+    return RevisionUtils.extract("$Revision: 11497 $");
   }
 
   /**

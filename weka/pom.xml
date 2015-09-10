@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>nz.ac.waikato.cms.weka</groupId>
-  <artifactId>weka-dev</artifactId>
+  <artifactId>weka-waikato</artifactId>
   <version>3.7.13-SNAPSHOT</version><!-- weka-version -->
   <packaging>jar</packaging>
 
