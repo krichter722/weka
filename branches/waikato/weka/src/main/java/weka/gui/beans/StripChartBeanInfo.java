@@ -15,13 +15,16 @@
 
 /*
  *    StripChartBeanInfo.java
- *    Copyright (C) 2002 University of Waikato, Hamilton, New Zealand
+ *    Copyright (C) 2002-2012 University of Waikato, Hamilton, New Zealand
  *
  */
 
 package weka.gui.beans;
 
-import java.beans.*;
+import java.beans.BeanDescriptor;
+import java.beans.EventSetDescriptor;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
 
 /**
  * Bean info class for the strip chart bean
@@ -51,9 +54,11 @@ public class StripChartBeanInfo extends SimpleBeanInfo {
     try {
       PropertyDescriptor p1;
       PropertyDescriptor p2;
+      PropertyDescriptor p3;
       p1 = new PropertyDescriptor("xLabelFreq", StripChart.class);
       p2 = new PropertyDescriptor("refreshFreq", StripChart.class);
-      PropertyDescriptor [] pds = { p1, p2 };
+      p3 = new PropertyDescriptor("refreshWidth", StripChart.class);
+      PropertyDescriptor [] pds = { p1, p2, p3 };
       return pds;
     } catch (Exception ex) {
       ex.printStackTrace();
